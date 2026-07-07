@@ -1,0 +1,10 @@
+# Istanza didattica: il greedy per densità fallisce, la PD no.
+# Oggetto 1: w=6, v=60  (densità 10 — il più "appetibile")
+# Oggetto 2: w=5, v=45  (densità 9)
+# Oggetto 3: w=5, v=45  (densità 9)
+# Greedy per densità: prende l'oggetto 1 (60), poi non entra più nulla → 60.
+# Ottimo vero: oggetti 2+3 → peso 10, valore 90.
+3 10
+6 60
+5 45
+5 45

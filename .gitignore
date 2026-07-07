@@ -1,0 +1,5 @@
+bin/
+lib/
+.DS_Store
+# prove locali di race.py (rigenerabili coi parametri nel nome)
+data/race_*
