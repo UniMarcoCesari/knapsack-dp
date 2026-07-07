@@ -192,7 +192,7 @@ public final class Main {
 
     private static void usage() {
         System.out.println("""
-            Zaino 0/1 in programmazione dinamica — elaborato ASD
+            Zaino 0/1 in programmazione dinamica
 
             Uso:
               generate <n> <W> <seed> [--wmax X] [--vmax X] [-o file]

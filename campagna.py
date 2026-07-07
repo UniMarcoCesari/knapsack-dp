@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""campagna.py — campagna sperimentale completa (Compito 3).
+"""campagna.py — campagna di benchmark completa.
 
 Esegue e raccoglie in data/campagna/:
   1. sweep su n (W fisso):  DP tabella + DP rolling (Bench) e Gurobi (GurobiBench)
@@ -331,8 +331,8 @@ td.bad {{ color:var(--bad); font-weight:700; }}
       <th>Rolling (W+1)·8</th><th>Esito rolling</th></tr></thead>
       <tbody>{lim_html}</tbody>
     </table>
-    <p class="note">La variante rolling estende le dimensioni delle istanze elaborabili
-    (richiesta del Compito 2): dove la tabella supera la memoria disponibile (OOM),
+    <p class="note">La variante rolling estende le dimensioni delle istanze
+    elaborabili: dove la tabella supera la memoria disponibile (OOM),
     il rolling array continua a funzionare — al prezzo della sola perdita della
     ricostruzione della soluzione.</p>
   </section>
