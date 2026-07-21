@@ -1,0 +1,10 @@
+# artefatti di compilazione LaTeX (rigenerabili da relazione.tex)
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.pdf
+_build.log

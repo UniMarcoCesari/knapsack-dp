@@ -1,0 +1,146 @@
+\documentclass[11pt]{article}
+\usepackage{asd-stile}
+
+% ---- pacchetti specifici della relazione --------------------
+\usepackage{graphicx}      % grafici della sperimentazione
+\usepackage{booktabs}      % tabelle pulite
+\usepackage{hyperref}
+\hypersetup{colorlinks=true, linkcolor=asdblu, urlcolor=asdblu, citecolor=asdblu}
+
+\begin{document}
+
+% ============================================================
+%  FRONTESPIZIO
+% ============================================================
+\begin{titlepage}
+\centering
+\vspace*{2cm}
+{\sffamily\color{asdblu}\Large Algoritmi e Strutture Dati\par}
+{\sffamily\color{asdblu}\large Elaborato a.a.\ 2025--26 \quad\textbullet\quad Prof.ssa Marina Zanella\par}
+\vspace{2.6cm}
+\rule{\linewidth}{1pt}\par\vspace{8pt}
+{\sffamily\color{asdblu}\Huge\bfseries Problema dello Zaino 0/1\par}
+\vspace{10pt}
+{\sffamily\large Risoluzione con programmazione dinamica\\[2pt]
+e confronto con un solver ILP\par}
+\vspace{8pt}\rule{\linewidth}{1pt}
+\vspace{2.6cm}
+
+{\large
+\begin{tabular}{r l}
+Componenti del gruppo: & Marco Cesari\\[2pt]
+                       & $\langle$secondo componente$\rangle$\\
+\end{tabular}\par}
+\vfill
+{\large Corso di Laurea Magistrale in Ingegneria Informatica \textbullet\ UniBS\par}
+{\large \today\par}
+\end{titlepage}
+
+% ============================================================
+\renewcommand{\contentsname}{\sffamily\color{asdblu}Indice}
+\tableofcontents
+\bigskip\hrule\bigskip
+
+% ============================================================
+\section{Introduzione e definizione del problema}
+\markboth{Zaino 0/1 --- Relazione}{}
+
+Questo elaborato affronta il problema dello Zaino 0/1 (\emph{0/1 Knapsack}), un
+classico problema di ottimizzazione combinatoria, risolvendolo con il paradigma
+della programmazione dinamica (PD). Lo Zaino 0/1 \`e citato nella traccia
+dell'elaborato come estensione del problema Subset Sum ed \`e un esempio canonico
+di applicazione della PD.
+
+\subsection{Il problema}
+Sono dati $n$ oggetti; ciascun oggetto $i$ (con $i = 1,\dots,n$) ha un peso
+$w_i > 0$ e un valore $v_i > 0$, entrambi interi. \`E inoltre data la capacit\`a
+$W$ dello zaino, un intero positivo. Si vuole selezionare un sottoinsieme di
+oggetti che massimizzi il valore totale rispettando il vincolo che il peso totale
+non superi $W$. Ogni oggetto pu\`o essere preso una volta sola oppure non preso
+affatto (interamente o per niente): da qui il nome \emph{0/1}, che distingue il
+problema dalla variante frazionaria in cui \`e ammesso prendere porzioni di un
+oggetto.
+
+\subsection{Formulazione come problema di ottimizzazione}
+Introducendo per ogni oggetto $i$ una variabile decisionale binaria
+$x_i \in \{0,1\}$ (dove $x_i = 1$ significa ``oggetto $i$ scelto'' e $x_i = 0$
+``oggetto $i$ scartato''), il problema si formula come:
+\[
+\begin{aligned}
+\text{massimizzare}\quad & \sum_{i=1}^{n} v_i\, x_i \\[2pt]
+\text{soggetto a}\quad   & \sum_{i=1}^{n} w_i\, x_i \le W, \\[2pt]
+                         & x_i \in \{0,1\}, \quad i = 1,\dots,n.
+\end{aligned}
+\]
+La funzione obiettivo somma i valori degli oggetti scelti; l'unico vincolo impone
+che il loro peso complessivo non ecceda la capacit\`a. Senza perdita di
+generalit\`a si assume $w_i \le W$ per ogni $i$ (un oggetto pi\`u pesante della
+capacit\`a \`e scartabile a priori) e $\sum_{i} w_i > W$ (altrimenti la soluzione
+ottima banale seleziona tutti gli oggetti).
+
+\subsection{Perch\'e lo Zaino 0/1}
+La scelta del problema \`e motivata da alcune propriet\`a che lo rendono adatto
+agli obiettivi dell'elaborato:
+\begin{itemize}
+  \item \`e un problema-modello della PD: si mappa in modo pulito sulle quattro
+        fasi del paradigma insegnate nel corso;
+  \item ammette la variante di ottimizzazione spaziale $\To(nW)\!\to\!\To(W)$
+        richiesta esplicitamente dal Compito~2;
+  \item ha complessit\`a pseudo-polinomiale (dipende dal valore di $W$, non solo
+        da $n$): ci\`o rende lo studio empirico del Compito~3 ricco e non banale;
+  \item si presta a un confronto con un solver ILP (Gurobi) come termine di
+        paragone esterno per la validazione e i benchmark.
+\end{itemize}
+
+\medskip\noindent
+\emph{N.B.}~Il cuore dell'elaborato \`e l'algoritmo di programmazione dinamica,
+progettato e analizzato in prima persona; il solver ILP non \`e parte della
+soluzione, ma soltanto oracolo di correttezza e baseline di confronto
+prestazionale.
+
+% ============================================================
+\section{Applicabilit\`a della programmazione dinamica}
+\begin{nota}
+\emph{Da compilare.} I due segni distintivi: \textbf{sottostruttura ottima} e
+\textbf{sovrapposizione dei sottoproblemi}; definizione ricorsiva di $K(i,c)$.
+\end{nota}
+
+% ============================================================
+\section{Gli algoritmi}
+\begin{nota}
+\emph{Da compilare.} \proc{Knapsack-Value} (valore ottimo, bottom-up) e
+\proc{Knapsack-Solution} (ricostruzione della soluzione dalla tabella).
+\end{nota}
+
+% ============================================================
+\section{Analisi asintotica}
+\begin{nota}
+\emph{Da compilare.} Tempo $\To(nW)$, spazio $\To(nW)$; natura
+\textbf{pseudo-polinomiale} (lineare nel valore di $W$, esponenziale nella sua
+lunghezza in bit).
+\end{nota}
+
+% ============================================================
+\section{Implementazione e varianti}
+\begin{nota}
+\emph{Da compilare.} Variante base (tabella 2D) e \textbf{rolling array}
+$\To(nW)$ tempo / $\To(W)$ spazio; scelte tecnologiche (Java, Gurobi come
+oracolo e baseline) e accortezze (warm-up JIT, heap fissa, \texttt{long} contro
+overflow, memoria esatta).
+\end{nota}
+
+% ============================================================
+\section{Sperimentazione}
+\begin{nota}
+\emph{Da compilare.} Generazione istanze, piattaforma di esecuzione, misure di
+tempo e memoria, confronto crescita empirica vs analisi asintotica, confronto
+con Gurobi (regimi in cui vince l'uno o l'altro).
+\end{nota}
+
+% ============================================================
+\section{Limitazioni e conclusioni}
+\begin{nota}
+\emph{Da compilare.} Limitazioni riscontrate nelle prove; conclusioni.
+\end{nota}
+
+\end{document}

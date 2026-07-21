@@ -1,0 +1,164 @@
+% ============================================================
+%  asd-stile.sty — stile condiviso per le dispense ASD (Zanella)
+%  Corso: Algoritmi e Strutture Dati — UniBS
+%  Riusabile da tutti i capitoli: \usepackage{asd-stile}
+% ============================================================
+\ProvidesPackage{asd-stile}[2026/05/30 Stile dispense ASD]
+
+% ---- Lingua e font -----------------------------------------
+\usepackage[italian]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}             % Latin Modern: sempre disponibile
+\usepackage{microtype}
+
+% ---- Geometria di pagina -----------------------------------
+\usepackage[a4paper,top=2.6cm,bottom=2.6cm,left=2.6cm,right=2.6cm]{geometry}
+\usepackage{setspace}\setstretch{1.06}
+
+% ---- Matematica --------------------------------------------
+\usepackage{amsmath,amssymb,amsthm,mathtools}
+
+% ---- Grafica e colori --------------------------------------
+\usepackage{xcolor}
+\definecolor{asdblu}{HTML}{1F4E79}
+\definecolor{asdblusoft}{HTML}{EAF0F7}
+\definecolor{asdverde}{HTML}{2E7D4F}
+\definecolor{asdverdesoft}{HTML}{E8F3EC}
+\definecolor{asdoro}{HTML}{B8860B}
+\definecolor{asdorosoft}{HTML}{FBF3DE}
+\definecolor{asdrosso}{HTML}{B23A48}
+\definecolor{asdrossosoft}{HTML}{F9EBED}
+\definecolor{asdgrigio}{HTML}{5A5A5A}
+\definecolor{asdgrigiosoft}{HTML}{F2F2F2}
+
+\usepackage{tikz}
+\usepackage[most,breakable]{tcolorbox}
+\tcbuselibrary{skins,breakable}
+
+% ---- Tabelle, liste, link ----------------------------------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{enumitem}\setlist{itemsep=2pt,topsep=3pt,parsep=0pt}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage[hidelinks,colorlinks=true,linkcolor=asdblu,urlcolor=asdblu]{hyperref}
+
+% ---- Titoli ------------------------------------------------
+\titleformat{\section}{\sffamily\Large\bfseries\color{asdblu}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\sffamily\large\bfseries\color{asdblu!85!black}}{\thesubsection}{0.6em}{}
+\titleformat{\subsubsection}{\sffamily\normalsize\bfseries\color{asdgrigio}}{}{0em}{}
+\titlespacing*{\section}{0pt}{1.4em}{0.7em}
+
+% ---- Intestazione/pie' di pagina ---------------------------
+\pagestyle{fancy}\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\fancyhead[L]{\footnotesize\sffamily\color{asdgrigio}\nouppercase{\leftmark}}
+\fancyhead[R]{\footnotesize\sffamily\color{asdgrigio}ASD — Zanella}
+\fancyfoot[C]{\footnotesize\sffamily\color{asdgrigio}\thepage}
+
+% ============================================================
+%  BOX TEMATICI (tcolorbox)
+% ============================================================
+\newcounter{asdbox}[section]
+\renewcommand{\theasdbox}{\thesection.\arabic{asdbox}}
+
+\newtcolorbox{definizione}[1][]{%
+  breakable,enhanced,colback=asdblusoft,colframe=asdblu,
+  boxrule=0.4pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\color{white},
+  coltitle=white,attach boxed title to top left={xshift=8pt,yshift=-2pt},
+  boxed title style={colback=asdblu,boxrule=0pt,arc=2pt},
+  title={Definizione\ifx\relax#1\relax\else\ — #1\fi}}
+
+\newtcolorbox{teorema}[1][]{%
+  breakable,enhanced,colback=asdverdesoft,colframe=asdverde,
+  boxrule=0.4pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\color{white},
+  coltitle=white,attach boxed title to top left={xshift=8pt,yshift=-2pt},
+  boxed title style={colback=asdverde,boxrule=0pt,arc=2pt},
+  title={Teorema\ifx\relax#1\relax\else\ — #1\fi}}
+
+\newtcolorbox{nota}[1][Nota]{%
+  breakable,enhanced,colback=asdorosoft,colframe=asdoro,
+  boxrule=0.4pt,arc=2pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\color{asdoro!60!black},
+  detach title,before upper={\tcbtitle\par\smallskip},
+  title={#1}}
+
+\newtcolorbox{esempio}[1][]{%
+  breakable,enhanced,colback=asdgrigiosoft,colframe=asdgrigio!60,
+  boxrule=0.4pt,arc=2pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\color{asdgrigio},
+  detach title,before upper={\tcbtitle\par\smallskip},
+  title={Esempio\ifx\relax#1\relax\else\ — #1\fi}}
+
+% Box "elaborato": collega la teoria al progetto Zaino 0/1
+\newtcolorbox{elaborato}{%
+  breakable,enhanced,colback=asdrossosoft,colframe=asdrosso,
+  boxrule=0.6pt,arc=2pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\color{white},coltitle=white,
+  attach boxed title to top left={xshift=8pt,yshift=-2pt},
+  boxed title style={colback=asdrosso,boxrule=0pt,arc=2pt},
+  title={Collegamento con l'elaborato (Zaino 0/1)}}
+
+% ============================================================
+%  PSEUDOCODICE in stile CLRS / Zanella
+%  Uso:
+%   \begin{pseudocodice}{NOME-PROC$(A)$}
+%     \riga{1}{0}{\kw{for} $j \gets 2$ \kw{to} $\length[A]$}
+%     \riga{2}{1}{\kw{do} $key \gets A[j]$}
+%     \rigacomm{3}{2}{si inserisce $A[j]$ \dots}
+%   \end{pseudocodice}
+% ============================================================
+\newcommand{\kw}[1]{\textbf{#1}}                       % parole chiave
+\newcommand{\length}{\mathit{length}}
+\newcommand{\proc}[1]{\textsc{#1}}                     % nome procedura
+\newlength{\indentunit}\setlength{\indentunit}{1.6em}
+\newcommand{\indlev}[1]{\hspace*{\dimexpr#1\indentunit\relax}}
+
+\newenvironment{pseudocodice}[1]{%
+  \par\smallskip
+  \begin{tcolorbox}[enhanced,breakable,colback=black!2,colframe=asdblu!55,
+    boxrule=0.5pt,arc=2pt,left=6pt,right=6pt,top=5pt,bottom=5pt,
+    fontupper=\normalsize]
+  \noindent{\sffamily\bfseries\proc{#1}}\par\vspace{2pt}
+  \setlength{\tabcolsep}{0.6em}\small
+  \begin{tabular}{@{}r@{\hspace{0.9em}}l@{}}}
+{\end{tabular}\end{tcolorbox}\par\smallskip}
+% riga: numero, livello indentazione, contenuto
+\newcommand{\riga}[3]{\textcolor{asdgrigio}{\scriptsize #1} & \indlev{#2}#3 \\}
+% riga di commento (in stile prof: triangolo)
+\newcommand{\rigacomm}[3]{\textcolor{asdgrigio}{\scriptsize #1} & \indlev{#2}\textcolor{asdgrigio}{$\triangleright$ \textit{#3}} \\}
+% riga senza numero (continuazione)
+\newcommand{\rigac}[2]{ & \indlev{#1}#2 \\}
+
+% ---- Frontespizio capitolo ---------------------------------
+\newcommand{\frontespizio}[3]{% #1=numero cap, #2=titolo, #3=sottotitolo/files
+  \thispagestyle{empty}
+  \begin{tikzpicture}[remember picture,overlay]
+    \fill[asdblu] (current page.north west) rectangle ([yshift=-3.2cm]current page.north east);
+    \node[anchor=west,text=white,font=\sffamily\bfseries\Huge]
+      at ([xshift=2.6cm,yshift=-1.55cm]current page.north west) {Capitolo #1};
+    \node[anchor=west,text=asdblusoft,font=\sffamily\large]
+      at ([xshift=2.6cm,yshift=-2.5cm]current page.north west)
+      {Algoritmi e Strutture Dati — Prof.ssa M.~Zanella};
+    % Titolo del capitolo, ben sotto la banda
+    \node[anchor=north west,text=asdblu,align=left,
+      text width=15.8cm,font=\sffamily\bfseries\fontsize{27}{31}\selectfont]
+      at ([xshift=2.6cm,yshift=-5.0cm]current page.north west) {#2};
+  \end{tikzpicture}
+  \vspace*{8.6cm}\par
+  {\color{asdgrigio}\large #3\par}
+  \vspace{0.3cm}
+  {\color{asdgrigio}\footnotesize Dispensa di studio basata sui lucidi del corso — \today\par}
+  \vspace{0.7cm}\hrule height 0.6pt
+  \vspace{1.0cm}
+}
+
+% ---- Scorciatoie matematiche -------------------------------
+\newcommand{\Oh}{O}
+\newcommand{\To}{\Theta}
+\newcommand{\Om}{\Omega}
+\renewcommand{\lg}{\operatorname{lg}}
