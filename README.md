@@ -89,9 +89,13 @@ wn vn
 Risultati in `data/campagna/`: un CSV per serie, `tutti.csv` unito (si apre
 in Excel) e `report.html`. Metodologia: heap fissa, warm-up per il JIT,
 `System.gc()` prima di ogni run misurata, mediana e minimo di più ripetizioni,
-seed fisso per punto; la memoria delle strutture è calcolata esatta
-(`(n+1)(W+1)·8` byte la tabella, `(W+1)·8` il rolling). Di Gurobi si misura
-solo il *solve time* a thread singolo.
+seed fisso per punto. Di Gurobi si misura solo il *solve time* a thread singolo.
+
+Della memoria si registrano **due** valori: quello calcolato dalla formula
+(`(n+1)(W+1)·8` byte la tabella, `(W+1)·8` il rolling) e quello misurato
+sull'heap; il confronto verifica l'analisi Θ(nW) invece di darla per buona.
+La misura è quantizzata a 512 KB, quindi vale sulla tabella completa ma non
+sul rolling array: per quello la prova è l'esperimento sui limiti.
 
 L'esperimento sui limiti mostra il senso della variante rolling: a parità di
 istanza la tabella completa esaurisce la memoria (OOM) dove il rolling array

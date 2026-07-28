@@ -5,20 +5,25 @@ import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.function.Supplier;
 
 /**
  * Misure per la sperimentazione: sweep su n (W fisso) e su W (n fisso).
- * Output CSV: sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_bytes
+ * Output CSV: sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_teorica,mem_misurata
  *
  * Accorgimenti: warm-up per il JIT, System.gc() prima di ogni misura,
  * mediana e minimo di più ripetizioni, seed fisso per punto (riproducibile).
- * La memoria è quella teorica delle strutture: (n+1)(W+1)*8 e (W+1)*8 byte.
+ * Della memoria si registrano sia il valore teorico delle strutture
+ * ((n+1)(W+1)*8 e (W+1)*8 byte) sia quello misurato sull'heap.
  */
 public final class Bench {
 
     private Bench() {}
 
     public static final int WARMUP = 3;
+
+    /** Letture dell'heap per punto: se ne prende la mediana. */
+    private static final int MEM_REPS = 3;
 
     public static void sweepN(int wFixed, int from, int to, int step,
                               int reps, long seed, Path out) throws IOException {
@@ -46,7 +51,7 @@ public final class Bench {
 
     private static PrintWriter writer(Path out) throws IOException {
         PrintWriter csv = new PrintWriter(Files.newBufferedWriter(out));
-        csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_bytes");
+        csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_teorica,mem_misurata");
         return csv;
     }
 
@@ -55,18 +60,48 @@ public final class Bench {
             long[][] K = KnapsackValue.table(ist);
             sink += K[ist.n][ist.W];
         });
+        long baseMem = measureHeap(() -> KnapsackValue.table(ist));
         // Locale.ROOT: punto decimale sempre, la virgola è il separatore del CSV
-        csv.printf(java.util.Locale.ROOT, "%s,base,%d,%d,%d,%d,%.3f,%.3f,%d%n",
-                sweep, ist.n, ist.W, seedTag, reps, base[0], base[1], ist.tableBytes());
+        csv.printf(java.util.Locale.ROOT, "%s,base,%d,%d,%d,%d,%.3f,%.3f,%d,%d%n",
+                sweep, ist.n, ist.W, seedTag, reps, base[0], base[1], ist.tableBytes(), baseMem);
 
         double[] roll = measure(reps, () -> sink += KnapsackRolling.value(ist));
-        csv.printf(java.util.Locale.ROOT, "%s,rolling,%d,%d,%d,%d,%.3f,%.3f,%d%n",
-                sweep, ist.n, ist.W, seedTag, reps, roll[0], roll[1], ist.rollingBytes());
+        // il rolling rende garbage il suo array al ritorno: si rialloca per misurarlo
+        long rollMem = measureHeap(() -> new long[ist.W + 1]);
+        csv.printf(java.util.Locale.ROOT, "%s,rolling,%d,%d,%d,%d,%.3f,%.3f,%d,%d%n",
+                sweep, ist.n, ist.W, seedTag, reps, roll[0], roll[1], ist.rollingBytes(), rollMem);
         csv.flush();
     }
 
     // impedisce al JIT di eliminare il calcolo come codice morto
     private static volatile long sink;
+
+    // senza, il collector può liberare la struttura fra le due letture dell'heap
+    private static volatile Object keepAlive;
+
+    /**
+     * Byte di heap occupati dalla struttura allocata da alloc: GC, lettura,
+     * allocazione, rilettura; mediana di MEM_REPS letture.
+     *
+     * I valori risultano quantizzati a 512 KB, perché l'heap cresce a blocchi:
+     * la misura vale sulla tabella completa, non sul rolling da pochi KB.
+     */
+    private static long measureHeap(Supplier<Object> alloc) {
+        Runtime rt = Runtime.getRuntime();
+        long[] bytes = new long[MEM_REPS];
+        for (int i = 0; i < MEM_REPS; i++) {
+            keepAlive = null;
+            System.gc();
+            System.gc();   // la prima passata può lasciare oggetti ancora in coda
+            long before = rt.totalMemory() - rt.freeMemory();
+            keepAlive = alloc.get();
+            long after = rt.totalMemory() - rt.freeMemory();
+            bytes[i] = Math.max(0, after - before);
+        }
+        keepAlive = null;
+        Arrays.sort(bytes);
+        return bytes[MEM_REPS / 2];
+    }
 
     /** Esegue WARMUP volte senza misurare, poi reps volte; ritorna {mediana, minimo} in ms. */
     private static double[] measure(int reps, Runnable body) {

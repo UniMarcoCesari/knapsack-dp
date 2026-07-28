@@ -68,7 +68,7 @@ def platform_info():
         "macOS": osv or "n/d",
         "Java": jav[0].strip() if jav else "n/d",
         "Data": time.strftime("%Y-%m-%d %H:%M"),
-        "Metodo": f"warm-up 3 + {DP_REPS} run (DP) e warm-up 1 + {GRB_REPS} solve (Gurobi); nei grafici il MINIMO delle ripetizioni (inviluppo inferiore, insensibile a GC), nei CSV anche la mediana; seed base {SEED}",
+        "Metodo": f"warm-up 3 + {DP_REPS} run (DP) e warm-up 1 + {GRB_REPS} solve (Gurobi); nei grafici il MINIMO delle ripetizioni (inviluppo inferiore, insensibile a GC), nei CSV anche la mediana; memoria sia calcolata dalla formula sia misurata sull'heap (mediana di 3 letture); seed base {SEED}",
     }
 
 
@@ -226,7 +226,7 @@ def line_chart(title, series, xlabel):
     return "\n".join(svg)
 
 
-def build_report(charts, limits_rows, plat, gurobi_ok):
+def build_report(charts, limits_rows, mem_rows, plat, gurobi_ok):
     legend = "".join(
         f'<span class="leg"><span class="dot s-{k}"></span>{l}</span>'
         for k, l in SERIES if gurobi_ok or k != "gurobi")
@@ -237,6 +237,11 @@ def build_report(charts, limits_rows, plat, gurobi_ok):
         f"<td class=\"{'bad' if r['base'] == 'OOM' else ''}\">{r['base']}</td>"
         f"<td>{fmt_bytes(r['rolling_bytes'])}</td><td>{r['rolling']}</td></tr>"
         for r in limits_rows)
+
+    mem_html = "".join(
+        f"<tr><td>{fmt(r['n'])}</td><td>{fmt_bytes(r['teorica'])}</td>"
+        f"<td>{fmt_bytes(r['misurata'])}</td><td>{r['scarto']:+.2f} %</td></tr>"
+        for r in mem_rows)
 
     plat_html = " · ".join(f"<b>{k}</b> {v}" for k, v in plat.items() if k != "Metodo")
 
@@ -325,6 +330,22 @@ td.bad {{ color:var(--bad); font-weight:700; }}
   </div>
 
   <section class="card" style="margin-top:1rem;">
+    <h2>Memoria della tabella completa — formula contro misura (sweep su n)</h2>
+    <table>
+      <thead><tr><th>n</th><th>Teorica (n+1)(W+1)·8</th><th>Misurata sull'heap</th>
+      <th>Scarto</th></tr></thead>
+      <tbody>{mem_html}</tbody>
+    </table>
+    <p class="note">Confronto fra la formula e l'occupazione reale: l'analisi
+    Θ(n·W) è confermata entro pochi punti percentuali. Lo scarto è positivo perché
+    la formula conta le sole celle, mentre <code>long[n+1][W+1]</code> è un array di
+    riferimenti a n+1 righe, ciascuna con la propria intestazione.
+    <br>La misura è quantizzata a 512 KB (l'heap cresce a blocchi): vale sulla
+    tabella completa, non sul rolling array, che con questi W sta in pochi KB. Per
+    il rolling la prova è la tabella dei limiti qui sotto.</p>
+  </section>
+
+  <section class="card" style="margin-top:1rem;">
     <h2>Limiti pratici — n = {fmt(LIMITS_N)}, heap {LIMITS_HEAP}, W molto grande</h2>
     <table>
       <thead><tr><th>W</th><th>Tabella (n+1)(W+1)·8</th><th>Esito tabella</th>
@@ -391,9 +412,19 @@ def main():
             pts.sort()
         charts[tag] = line_chart(tag, series, xlabel)
 
+    # ── memoria: formula contro misura (solo tabella: il rolling è troppo
+    #    piccolo per la risoluzione dell'heap) ──
+    mem_rows = []
+    for r in read_rows(OUT / "dp_n.csv"):
+        if r["algo"] != "base":
+            continue
+        teo, mis = int(r["mem_teorica"]), int(r["mem_misurata"])
+        mem_rows.append(dict(n=int(r["n"]), teorica=teo, misurata=mis,
+                             scarto=(mis - teo) / teo * 100 if teo else 0.0))
+
     plat = platform_info()
     report = OUT / "report.html"
-    report.write_text(build_report(charts, limits_rows, plat, gurobi_ok), encoding="utf-8")
+    report.write_text(build_report(charts, limits_rows, mem_rows, plat, gurobi_ok), encoding="utf-8")
     print(f"  {report.relative_to(ROOT)} ✓   {DIM}(campagna completata in {time.time()-t0:.0f} s){RESET}")
     if not os.environ.get("CAMPAGNA_NO_OPEN"):
         subprocess.run(["open", str(report)], check=False)

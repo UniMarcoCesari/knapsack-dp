@@ -17,7 +17,8 @@ import knapsack.Instance;
  *
  * Per punto: 1 solve di warm-up, poi mediana e minimo di reps solve;
  * si registra solo il tempo di soluzione (attributo Runtime).
- * mem_bytes = 0: la memoria interna del solver non si puo' misurare.
+ * Le due colonne di memoria valgono 0 (quella del solver sta nella libreria
+ * nativa): servono ad avere le stesse colonne degli sweep di knapsack.Bench.
  */
 public final class GurobiBench {
 
@@ -37,7 +38,7 @@ public final class GurobiBench {
 
         Files.createDirectories(out.toAbsolutePath().getParent());
         try (PrintWriter csv = new PrintWriter(Files.newBufferedWriter(out))) {
-            csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_bytes");
+            csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_teorica,mem_misurata");
             for (int x = from; x <= to; x += step) {
                 int n = mode.equals("nsweep") ? x : fixed;
                 int W = mode.equals("nsweep") ? fixed : x;
@@ -52,7 +53,7 @@ public final class GurobiBench {
                 }
                 Arrays.sort(ms);
                 double med = (reps % 2 == 1) ? ms[reps / 2] : (ms[reps / 2 - 1] + ms[reps / 2]) / 2;
-                csv.printf(java.util.Locale.ROOT, "%s,gurobi,%d,%d,%d,%d,%.3f,%.3f,0%n",
+                csv.printf(java.util.Locale.ROOT, "%s,gurobi,%d,%d,%d,%d,%.3f,%.3f,0,0%n",
                         mode.equals("nsweep") ? "n" : "W", n, W, s, reps, med, ms[0]);
                 csv.flush();
                 System.out.printf("  gurobi %s=%d fatto%n", mode.equals("nsweep") ? "n" : "W", x);
