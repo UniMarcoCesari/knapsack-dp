@@ -11,6 +11,7 @@ echo "Core compilato in bin/"
 GRB_JAR=""
 [ -n "$GUROBI_HOME" ] && [ -f "$GUROBI_HOME/lib/gurobi.jar" ] && GRB_JAR="$GUROBI_HOME/lib/gurobi.jar"
 [ -f lib/gurobi.jar ] && GRB_JAR="lib/gurobi.jar"
+[ -z "$GRB_JAR" ] && [ -f "/Library/gurobi1203/macos_universal2/lib/gurobi.jar" ] && GRB_JAR="/Library/gurobi1203/macos_universal2/lib/gurobi.jar"
 
 if [ -n "$GRB_JAR" ]; then
     javac -cp "bin:$GRB_JAR" -d bin $(find gurobi-src -name '*.java')

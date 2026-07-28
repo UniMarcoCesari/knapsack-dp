@@ -3,10 +3,11 @@
 IN PARALLELO: PD tabella, PD rolling, brute force, Gurobi (ILP).
 
 Uso:
-    ./race.py <n> <W> [seed] [--plot]
+    ./race.py <n> <W> [seed] [--plot] [--correlated] [--cc N]
 
-    --plot   genera anche una pagina HTML con due grafici a barre
-             (tempo e memoria) e la apre nel browser.
+    --plot          genera una pagina HTML con grafici a barre e la apre
+    --correlated    genera un'istanza strongly correlated (v_i = w_i + cc)
+    --cc N          costante di correlazione (default 20, richiede --correlated)
 
 Output: una riga per algoritmo (valore ottimo, tempo del solo algoritmo,
 memoria delle strutture dati, durata del processo) e il verdetto.
@@ -68,35 +69,54 @@ def fmt_ms(ms):
 
 
 def main():
-    args = [a for a in sys.argv[1:] if not a.startswith("--")]
-    flags = {a for a in sys.argv[1:] if a.startswith("--")}
-    unknown = flags - {"--plot"}
+    # parsing degli argomenti: flag booleani e flag con valore (--cc N)
+    positional = []
+    flags = set()
+    cc = 20  # correlation cost di default
+    i = 1
+    while i < len(sys.argv):
+        a = sys.argv[i]
+        if a == "--cc":
+            i += 1
+            cc = int(sys.argv[i])
+        elif a.startswith("--"):
+            flags.add(a)
+        else:
+            positional.append(a)
+        i += 1
+    unknown = flags - {"--plot", "--correlated"}
     if unknown:
         die("flag sconosciuti: " + " ".join(sorted(unknown)))
-    if len(args) < 2:
+    if len(positional) < 2:
         print(__doc__)
         sys.exit(2)
-    n, W = int(args[0]), int(args[1])
-    seed = int(args[2]) if len(args) > 2 else 42
+    n, W = int(positional[0]), int(positional[1])
+    seed = int(positional[2]) if len(positional) > 2 else 42
     want_plot = "--plot" in flags
+    correlated = "--correlated" in flags
 
     if not BIN.is_dir():
         die("bin/ non trovato: compila prima con ./compile.sh")
 
     # ── istanza: nome univoco dai parametri; se esiste già la riusiamo
     #    (stesso seed → stessa istanza, la generazione è deterministica) ──
-    inst = ROOT / "data" / f"race_n{n}_W{W}_s{seed}.txt"
+    tag = f"corr_cc{cc}" if correlated else "rand"
+    inst = ROOT / "data" / f"race_{tag}_n{n}_W{W}_s{seed}.txt"
     if inst.exists():
         origin = "già presente, riusata"
     else:
-        gen = subprocess.run(
-            ["java", "-cp", "bin", "knapsack.Main", "generate", str(n), str(W), str(seed),
-             "-o", str(inst)], cwd=ROOT, capture_output=True, text=True)
+        gen_cmd = ["java", "-cp", "bin", "knapsack.Main", "generate",
+                   str(n), str(W), str(seed), "-o", str(inst)]
+        if correlated:
+            gen_cmd += ["--correlated", "--cc", str(cc)]
+        gen = subprocess.run(gen_cmd, cwd=ROOT, capture_output=True, text=True)
         if gen.returncode != 0:
             die("generazione fallita:\n" + gen.stderr)
         origin = "generata"
 
-    print(f"Istanza: n={n}  W={W}  seed={seed}   ({inst.relative_to(ROOT)}, {origin})")
+    tipo = f"STRONGLY CORRELATED (v_i = w_i + {cc})" if correlated else "random (uncorrelated)"
+    print(f"Istanza: n={n}  W={W}  seed={seed}  tipo={tipo}")
+    print(f"         ({inst.relative_to(ROOT)}, {origin})")
     print(f"{DIM}avvio in parallelo: PD tabella · PD rolling · brute force · Gurobi …{RESET}\n")
 
     # ── i concorrenti ──

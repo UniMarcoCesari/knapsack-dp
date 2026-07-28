@@ -48,6 +48,25 @@ public final class Instance {
         return new Instance(n, W, w, v, "rand(n=" + n + ",W=" + W + ",seed=" + seed + ")");
     }
 
+    /**
+     * Genera un'istanza strongly correlated: v_i = w_i + correlationCost.
+     * Serve a mostrare che il tempo della PD non dipende dalla distribuzione
+     * dei valori (resta Θ(n·W)), mentre quello di un solver ILP sì: il suo
+     * Branch & Bound perde i bound del rilassamento LP quando valore e peso
+     * sono proporzionali, e i tempi diventano poco prevedibili.
+     */
+    public static Instance stronglyCorrelated(int n, int W, long seed, int wMax, int correlationCost) {
+        Random rnd = new Random(seed);
+        int[] w = new int[n + 1];
+        long[] v = new long[n + 1];
+        for (int i = 1; i <= n; i++) {
+            w[i] = 1 + rnd.nextInt(Math.max(1, wMax));
+            v[i] = w[i] + correlationCost;
+        }
+        return new Instance(n, W, w, v,
+                "stronglyCorrelated(n=" + n + ",W=" + W + ",seed=" + seed + ",c=" + correlationCost + ")");
+    }
+
     public static Instance load(Path file) throws IOException {
         List<String> rows = new ArrayList<>();
         for (String line : Files.readAllLines(file)) {

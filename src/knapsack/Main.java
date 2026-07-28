@@ -76,16 +76,22 @@ public final class Main {
         long seed = Long.parseLong(a[3]);
         int wMax = W > 0 ? W : 1;
         long vMax = 1000;
+        boolean correlated = false;
+        int correlationCost = 10;
         Path out = null;
         for (int i = 4; i < a.length; i++) {
             switch (a[i]) {
                 case "-o" -> out = Path.of(a[++i]);
                 case "--wmax" -> wMax = Integer.parseInt(a[++i]);
                 case "--vmax" -> vMax = Long.parseLong(a[++i]);
+                case "--correlated" -> correlated = true;
+                case "--cc" -> correlationCost = Integer.parseInt(a[++i]);
                 default -> { System.err.println("opzione sconosciuta: " + a[i]); return; }
             }
         }
-        Instance ist = Instance.random(n, W, seed, wMax, vMax);
+        Instance ist = correlated
+                ? Instance.stronglyCorrelated(n, W, seed, wMax, correlationCost)
+                : Instance.random(n, W, seed, wMax, vMax);
         if (out == null) out = Path.of("data/istanza_n" + n + "_W" + W + "_s" + seed + ".txt");
         Files.createDirectories(out.toAbsolutePath().getParent());
         ist.save(out);
@@ -195,11 +201,14 @@ public final class Main {
             Zaino 0/1 in programmazione dinamica
 
             Uso:
-              generate <n> <W> <seed> [--wmax X] [--vmax X] [-o file]
+              generate <n> <W> <seed> [--wmax X] [--vmax X] [--correlated] [--cc X] [-o file]
               solve <file-istanza> [--rolling] [--dump-table tabella.csv]
               test
               bench nsweep|wsweep [--fixed X] [--from X] [--to X] [--step X]
                                   [--reps X] [--seed X] [-o out.csv]
+
+            --correlated   genera istanza strongly correlated (v_i = w_i + cc)
+            --cc X         costante di correlazione (default 10, richiede --correlated)
 
             Consigliato per le misure: java -Xms2g -Xmx2g -cp bin knapsack.Main bench ...
             (heap fissa: niente ridimensionamenti del GC durante le misure)""");

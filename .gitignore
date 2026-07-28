@@ -1,6 +1,8 @@
 bin/
 lib/
 .DS_Store
+gurobi.log
 # prove locali di race.py (rigenerabili coi parametri nel nome)
 data/race_*
-gurobi.log
+# output della campagna: CSV, report.html e istanze lim_* (rigenerabili con ./campagna.py)
+data/campagna/
