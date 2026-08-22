@@ -493,12 +493,11 @@ di celle, dieci volte pi\`u righe costano di pi\`u.
 \end{figure}
 
 Quanto alla memoria, nella Figura~\ref{fig:memoria} i valori misurati sull'heap
-seguono la formula $(n+1)(W+1)\cdot 8$ byte entro il 5\%. Lo scarto \`e dovuto
-quasi per intero alla granularit\`a di mezzo megabyte con cui la macchina
-virtuale alloca --- le letture sono multipli esatti di quel valore, e lo scarto
-cala al crescere della tabella --- mentre le intestazioni degli array pesano
-appena lo $0{,}25\%$. La previsione dell'analisi asintotica \`e quindi confermata
-anche nella costante, non solo nell'andamento.
+seguono la formula $(n+1)(W+1)\cdot 8$ byte, con uno scarto di pochi punti
+percentuali dovuto alla granularit\`a di mezzo megabyte con cui la macchina
+virtuale alloca: le letture sono multipli esatti di quel valore, e lo scarto cala
+al crescere della tabella. La previsione dell'analisi asintotica \`e quindi
+confermata anche nella costante, non solo nell'andamento.
 
 \begin{figure}[tbp]
   \centering
@@ -616,26 +615,9 @@ la crescita empirica con l'analisi asintotica.
 
 Due sono i risultati principali. Da un lato l'analisi prevede il comportamento
 osservato con precisione: il tempo cresce linearmente in ciascuno dei due
-fattori e la memoria segue la formula entro il 5\%. Dall'altro il fattore che
+fattori e la memoria segue la formula. Dall'altro il fattore che
 decide quali istanze siano davvero trattabili non \`e il numero di oggetti ma la
 capacit\`a, ed \`e sulla memoria, non sul tempo, che il limite si presenta per
 primo: da qui l'utilit\`a concreta della variante a spazio ridotto.
-
-% ============================================================
-\section*{Riferimenti}
-\addcontentsline{toc}{section}{Riferimenti}
-
-\begin{itemize}
-  \item M. Zanella, \emph{Algoritmi e Strutture Dati}, lucidi del corso,
-        Universit\`a degli Studi di Brescia, a.a.\ 2025--26 --- in particolare
-        la sezione sulla programmazione dinamica, da cui provengono le quattro
-        fasi del paradigma e i due segni distintivi.
-  \item T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein,
-        \emph{Introduzione agli algoritmi e strutture dati}, McGraw-Hill.
-  \item H. Kellerer, U. Pferschy, D. Pisinger, \emph{Knapsack Problems},
-        Springer, 2004.
-  \item D. Pisinger, \emph{Where are the hard knapsack problems?}, Computers and
-        Operations Research 32 (2005), 2271--2284.
-\end{itemize}
 
 \end{document}
