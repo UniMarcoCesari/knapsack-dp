@@ -2,8 +2,10 @@ package knapsack;
 
 /**
  * Variante a spazio ridotto: una sola riga di W+1 celle invece della tabella.
- * Tempo Θ(n·W) come la versione base, spazio Θ(W); in cambio si perde la
- * ricostruzione della soluzione (resta solo il valore ottimo).
+ * Spazio Θ(W); in cambio si perde la ricostruzione della soluzione (resta
+ * solo il valore ottimo). Il tempo è O(n·W) e Θ(n·W) nel caso peggiore: il
+ * ciclo interno parte da W e si ferma a w[i], quindi il numero di iterazioni
+ * dipende dai pesi (con pesi uniformi in [1,W] sono circa la metà di n·W).
  */
 public final class KnapsackRolling {
 

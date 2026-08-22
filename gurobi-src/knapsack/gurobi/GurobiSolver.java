@@ -23,6 +23,8 @@ public final class GurobiSolver {
         GRBEnv env = new GRBEnv(true);
         env.set(GRB.IntParam.OutputFlag, 0);   // silenzioso
         env.set(GRB.IntParam.Threads, 1);      // confronto leale con DP single-thread
+        env.set(GRB.DoubleParam.MIPGap, 0.0);  // oracolo esatto: niente tolleranza di ottimalita'
+        env.set(GRB.DoubleParam.MIPGapAbs, 0.0);
         env.start();
         try {
             GRBModel model = new GRBModel(env);

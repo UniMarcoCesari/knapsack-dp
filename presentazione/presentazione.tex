@@ -6,6 +6,7 @@
 \usepackage{amsmath,amssymb}
 \usepackage{graphicx}
 \usepackage{booktabs}
+\usepackage{tikz}
 
 % ---- aspetto sobrio, colori della relazione ----------------
 \usetheme{default}
@@ -13,6 +14,7 @@
 \setbeamertemplate{navigation symbols}{}
 \definecolor{asdblu}{HTML}{1F4E79}
 \definecolor{asdgrigio}{HTML}{5A5A5A}
+\definecolor{zainoblu}{HTML}{8FBEDF}
 \setbeamercolor{structure}{fg=asdblu}
 \setbeamercolor{frametitle}{fg=asdblu}
 \setbeamerfont{frametitle}{series=\bfseries,size=\large}
@@ -31,17 +33,20 @@
 
 % ---------------------------------------------------------
 \begin{frame}[plain]
-  \vfill
-  {\sffamily\color{asdblu}\Large Algoritmi e Strutture Dati\par}
-  \vspace{4pt}
-  {\sffamily\color{asdgrigio}\small Elaborato a.a.\ 2025--26\par}
-  \vspace{18pt}
-  {\sffamily\color{asdblu}\huge\bfseries Problema dello Zaino 0/1\par}
-  \vspace{6pt}
-  {\sffamily\large Risoluzione con programmazione dinamica\par}
-  \vspace{18pt}
-  {\sffamily Marco Cesari\par}
-  \vfill
+\begin{tikzpicture}[remember picture,overlay]
+  % fondo nero: coincide con lo sfondo dell'immagine, che vi si fonde senza bordi
+  \fill[black] (current page.south west) rectangle (current page.north east);
+  \node[anchor=center] at ([yshift=14mm]current page.center)
+    {\includegraphics[height=0.55\paperheight]{fig/zaino.png}};
+  \node[anchor=north] at ([yshift=-20mm]current page.center)
+    {\sffamily\bfseries\color{white}\huge Problema dello Zaino 0/1};
+  \node[anchor=north] at ([yshift=-29mm]current page.center)
+    {\sffamily\color{zainoblu} Risoluzione con programmazione dinamica};
+  \node[anchor=south] at ([yshift=6mm]current page.south)
+    {\sffamily\scriptsize\color{white!55!black}
+     Algoritmi e Strutture Dati \textbullet\ Elaborato a.a.\ 2025--26
+     \textbullet\ Marco Cesari};
+\end{tikzpicture}
 \end{frame}
 
 % ---------------------------------------------------------

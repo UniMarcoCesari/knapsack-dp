@@ -46,7 +46,7 @@ column -s, -t data/tabella_didattica.csv
 |---|---|
 | `src/knapsack/KnapsackValue.java` | valore ottimo bottom-up, tabella completa — Θ(nW) tempo e spazio |
 | `src/knapsack/KnapsackSolution.java` | ricostruzione della soluzione dalla tabella — Θ(n) |
-| `src/knapsack/KnapsackRolling.java` | variante a una riga — Θ(nW) tempo, Θ(W) spazio, solo valore |
+| `src/knapsack/KnapsackRolling.java` | variante a una riga — O(nW) tempo, Θ(W) spazio di lavoro, solo valore |
 | `src/knapsack/BruteForce.java` | enumerazione dei 2ⁿ sottoinsiemi (oracolo nei test, n ≤ 25) |
 | `src/knapsack/Instance.java` | istanza + generatore casuale riproducibile (seed) |
 | `src/knapsack/Bench.java` | misure: sweep su n e su W, warm-up JIT, mediana/minimo, CSV |
@@ -124,5 +124,5 @@ stessa istanza.
   leggerebbe la riga già aggiornata e ogni oggetto potrebbe essere preso più
   volte (diventerebbe lo zaino illimitato).
 - La complessità Θ(nW) è **pseudo-polinomiale**: lineare nel valore di W,
-  esponenziale nella sua lunghezza in bit. Nei benchmark si vede: il tempo
+  quindi esponenziale nel numero di bit con cui W si scrive. Nei benchmark si vede: il tempo
   della PD cresce con W, quello di Gurobi no.

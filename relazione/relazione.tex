@@ -107,8 +107,8 @@ agli obiettivi dell'elaborato:
         fasi del paradigma insegnate nel corso;
   \item ammette la variante di ottimizzazione spaziale $\To(nW)\!\to\!\To(W)$
         richiesta esplicitamente dal Compito~2;
-  \item ha complessit\`a pseudo-polinomiale (dipende dal valore di $W$, non solo
-        da $n$): ci\`o rende lo studio empirico del Compito~3 ricco e non banale;
+  \item ammette un algoritmo pseudo-polinomiale (il cui costo dipende dal
+        valore di $W$, non solo da $n$): ci\`o rende lo studio empirico del Compito~3 ricco e non banale;
   \item si presta a un confronto con un solver ILP (Gurobi) come termine di
         paragone esterno per la validazione e i benchmark.
 \end{itemize}
@@ -119,10 +119,10 @@ di confronto e come oracolo di correttezza: il cuore dell'elaborato \`e
 l'algoritmo di programmazione dinamica.
 
 % ============================================================
-\section{Applicabilit\`a della programmazione dinamica}
+\section{Applicabilit\`a della programmazione dinamica}\label{sec:applicabilita}
 
-La progettazione di un algoritmo che adotta il paradigma della programmazione
-dinamica si articola in quattro fasi, di cui l'ultima \`e opzionale:
+La progettazione di un algoritmo di programmazione dinamica si articola in
+quattro fasi, di cui l'ultima \`e opzionale:
 \begin{enumerate}
   \item caratterizzazione della struttura di una soluzione ottima;
   \item definizione ricorsiva del valore di una soluzione ottima;
@@ -130,30 +130,28 @@ dinamica si articola in quattro fasi, di cui l'ultima \`e opzionale:
   \item costruzione di una soluzione ottima a partire dalle informazioni
         calcolate nella fase precedente.
 \end{enumerate}
-Questa sezione svolge le prime due fasi per lo Zaino 0/1 e verifica, nel farlo,
-i due segni distintivi che costituiscono il criterio di applicabilit\`a del
-paradigma: l'esistenza di sottostrutture ottime all'interno di una soluzione
-ottima e la sovrapposizione dei sottoproblemi. Le fasi 3 e 4 danno luogo ai due
-algoritmi presentati nella sezione successiva.
+Questa sezione svolge le prime due fasi per lo Zaino 0/1 e verifica intanto i
+due segni distintivi che sono anche i criteri di applicabilit\`a del paradigma:
+l'esistenza di sottostrutture ottime all'interno di una soluzione ottima e la
+risoluzione ripetuta dello stesso sottoproblema.
 
 \subsection{I sottoproblemi}
 Applicare il paradigma richiede anzitutto di individuare una famiglia di
 sottoproblemi dell'istanza data. Nello Zaino 0/1 un sottoproblema \`e ancora un
 problema dello Zaino 0/1, ottenuto riducendo due grandezze: gli oggetti fra cui
-\`e ammesso scegliere e la capacit\`a dello zaino.
-Fissato una volta per tutte un ordine sugli oggetti, si considerano i soli
-prefissi $\{1,\dots,i\}$: poich\'e su ciascun oggetto si decide una volta sola,
-esaminarli in un ordine prestabilito non esclude alcuna soluzione.
+\`e ammesso scegliere e la capacit\`a dello zaino. Fissato una volta per tutte
+un ordine sugli oggetti, si considerano i soli prefissi $\{1,\dots,i\}$:
+poich\'e su ciascun oggetto si decide una volta sola, esaminare gli oggetti in
+un ordine prestabilito non esclude alcuna soluzione.
 
-Convenzione notazionale: per $0 \le i \le n$ e $0 \le c \le W$, si indica con
-$K(i,c)$ il valore di una soluzione ottima del sottoproblema costituito dai
+Convenzione notazionale: per $0 \le i \le n$ e $0 \le c \le W$ si indica con
+$K[i,c]$ il valore di una soluzione ottima del sottoproblema costituito dai
 primi $i$ oggetti con capacit\`a $c$.
 
 Il problema di partenza \`e il sottoproblema $(n,W)$ e il valore cercato \`e
-dunque $K(n,W)$; i sottoproblemi distinti sono $(n+1)(W+1)$, dato su cui si
-torner\`a nella Sezione~\ref{sub:sovrapposizione}.
+dunque $K[n,W]$; i sottoproblemi distinti sono $(n+1)(W+1) = \To(nW)$.
 
-\subsection{Sottostruttura ottima}
+\subsection{Caratterizzazione della struttura di una soluzione ottima}
 Sia $S \subseteq \{1,\dots,i\}$ una soluzione ottima del sottoproblema $(i,c)$,
 con $i \ge 1$. Sull'oggetto $i$-esimo l'alternativa \`e binaria e i due casi si
 trattano separatamente.
@@ -163,7 +161,7 @@ per il sottoproblema $(i-1,c)$. \`E anche ottima per esso: se esistesse
 $S' \subseteq \{1,\dots,i-1\}$ ammissibile per $(i-1,c)$ e di valore maggiore,
 $S'$ sarebbe ammissibile anche per $(i,c)$ --- stessa capacit\`a, insieme di
 oggetti pi\`u ampio --- contro l'ottimalit\`a di $S$. Quindi
-$K(i,c) = K(i-1,c)$.
+$K[i,c] = K[i-1,c]$.
 
 \emph{Caso $i \in S$}, possibile solo se $w_i \le c$. Allora
 $S \setminus \{i\} \subseteq \{1,\dots,i-1\}$ ha peso complessivo non superiore
@@ -172,70 +170,68 @@ anche ottima per esso: se esistesse $S'$ ammissibile per $(i-1,\,c-w_i)$ e di
 valore maggiore di quello di $S \setminus \{i\}$, allora $S' \cup \{i\}$ avrebbe
 peso non superiore a $c$, sarebbe ammissibile per $(i,c)$ e avrebbe valore
 maggiore di quello di $S$, contro l'ottimalit\`a di $S$. Quindi
-$K(i,c) = v_i + K(i-1,\,c-w_i)$.
+$K[i,c] = v_i + K[i-1,\,c-w_i]$.
 
-L'argomento usato in entrambi i casi \`e del tipo taglia-e-incolla: si suppone
-che una porzione di una soluzione ottima non sia ottima per il proprio
-sottoproblema, la si sostituisce con una migliore e si ottiene, per il problema
-di partenza, una soluzione migliore di quella supposta ottima, il che \`e
-assurdo. Una soluzione ottima dello Zaino 0/1 contiene dunque al proprio interno
-soluzioni ottime di sottoproblemi: \`e il primo segno distintivo del paradigma.
+In entrambi i casi l'argomento \`e del tipo taglia-e-incolla: si sostituisce una
+porzione della soluzione con una migliore e si ottiene una soluzione migliore di
+quella supposta ottima, il che \`e assurdo. Vale dunque l'esistenza di
+sottostrutture ottime all'interno di una soluzione ottima, primo segno
+distintivo e criterio di applicabilit\`a del paradigma.
 
 \subsection{Definizione ricorsiva del valore di una soluzione ottima}
 I due casi appena discussi esauriscono le alternative. Quando $w_i > c$
-l'oggetto $i$ non \`e collocabile nella capacit\`a disponibile e resta praticabile
-il solo primo caso; quando $w_i \le c$ sono praticabili entrambi e la scelta
-ottima \`e quella che produce il valore maggiore. Con il caso base
-$K(0,c) = 0$ per ogni $c$ --- senza oggetti a disposizione il valore \`e nullo
---- si ottiene la ricorrenza
+l'oggetto $i$ non entra nella capacit\`a disponibile e resta il solo primo caso;
+quando $w_i \le c$ valgono entrambi e si sceglie il valore maggiore. Con il caso
+base $K[0,c] = 0$ per ogni $c$ --- senza oggetti a disposizione il valore \`e
+nullo --- si ottiene la ricorrenza
 \[
-  K(i,c) =
+  K[i,c] =
   \begin{cases}
     0 & \text{se } i = 0, \\[2pt]
-    K(i-1,c) & \text{se } i \ge 1 \text{ e } w_i > c, \\[2pt]
-    \max\bigl\{\, K(i-1,c),\; v_i + K(i-1,\,c-w_i) \,\bigr\}
+    K[i-1,c] & \text{se } i \ge 1 \text{ e } w_i > c, \\[2pt]
+    \max\bigl\{\, K[i-1,c],\; v_i + K[i-1,\,c-w_i] \,\bigr\}
       & \text{se } i \ge 1 \text{ e } w_i \le c .
   \end{cases}
 \]
 Il caso $c = 0$ non richiede una riga a s\'e: con capacit\`a nulla nessun oggetto
-\`e collocabile, essendo $w_i > 0$ per ipotesi, e la seconda riga riconduce
-$K(i,0)$ a $K(0,0) = 0$.
+entra, essendo $w_i > 0$ per ipotesi, e la seconda riga riconduce $K[i,0]$ a
+$K[0,0] = 0$. Si osservi inoltre che $K[i,c] \ge K[i-1,c]$ per ogni $i$ e $c$,
+perch\'e il massimo della terza riga contiene $K[i-1,c]$: aggiungere un oggetto
+alla scelta non pu\`o peggiorare l'ottimo. La disuguaglianza torner\`a utile
+nella ricostruzione della soluzione.
 
-La ricorrenza definisce il valore di una soluzione ottima, non la soluzione:
-quali oggetti compongano l'ottimo non compare fra i suoi termini. Ci\`o \`e
-coerente con l'articolazione del paradigma, che alla fase 2 calcola un valore e
-demanda alla fase 4 la costruzione di una soluzione a partire dalle informazioni
-tabulate. La distinzione non \`e formale: le soluzioni ottime possono essere
-pi\`u d'una --- sottoinsiemi diversi di oggetti possono raggiungere lo stesso
-valore massimo --- mentre il valore ottimo \`e unico, ed \`e quello che la
-ricorrenza determina.
+La ricorrenza determina il valore ottimo, che \`e unico, non l'insieme di
+oggetti che lo realizza: alla costruzione di una soluzione provvede la fase 4.
 
-\subsection{Sovrapposizione dei sottoproblemi}\label{sub:sovrapposizione}
+\subsection{Risoluzione ripetuta dello stesso sottoproblema}\label{sub:sovrapposizione}
 Un algoritmo ricorsivo che traducesse alla lettera la ricorrenza risolverebbe
-pi\`u volte lo stesso sottoproblema. Ogni chiamata su $(i,c)$ ne genera al pi\`u
-due sul livello $i-1$, sicch\'e l'albero di ricorsione ha profondit\`a $n$ e fino
-a $2^n$ foglie, mentre i sottoproblemi distinti sono al pi\`u $(n+1)(W+1)$:
-non appena $2^n$ supera tale quantit\`a, qualche sottoproblema viene
-necessariamente affrontato pi\`u di una volta.
+pi\`u volte lo stesso sottoproblema. Quando ogni oggetto \`e collocabile nella
+capacit\`a corrente --- per esempio se $w_i = 1$ per ogni $i$ e $W \ge n$ ---
+ogni chiamata si biforca e l'albero di ricorsione ha esattamente $2^n$ foglie,
+mentre i sottoproblemi distinti sono $(n+1)(W+1)$: su tali istanze, appena $2^n$
+supera tale quantit\`a, qualche sottoproblema viene necessariamente affrontato
+pi\`u di una volta.
 
 La coincidenza, del resto, non \`e un caso limite. Due chiamate ricorsive
 raggiungono lo stesso sottoproblema ogni volta che due sottoinsiemi distinti
 degli oggetti gi\`a decisi hanno lo stesso peso complessivo: gi\`a al livello
-$i-2$, se $w_i = w_{i-1}$, il sottoproblema $(i-2,\,c-w_i)$ \`e raggiunto sia
-prendendo l'oggetto $i$ e scartando l'$(i-1)$-esimo, sia scartando il primo e
-prendendo il secondo. Con pesi interi limitati da $W$, tali collisioni sono la
-norma e non l'eccezione, ed \`e questo il secondo segno distintivo.
+$i-2$, se $w_i = w_{i-1}$ e la capacit\`a basta a entrambi, il sottoproblema
+$(i-2,\,c-w_i)$ \`e raggiunto sia prendendo l'oggetto $i$ e scartando
+l'$(i-1)$-esimo, sia facendo il contrario. Con pesi interi limitati da $W$, tali
+collisioni sono la norma e non l'eccezione: \`e il secondo segno distintivo e
+criterio di applicabilit\`a, noto in letteratura come sovrapposizione dei
+sottoproblemi.
 
 La programmazione dinamica risponde a tale ridondanza risolvendo ciascun
-sottoproblema una volta sola e memorizzandone il valore in una tabella: il costo
-cessa di dipendere dal numero di cammini dell'albero di ricorsione e diventa
+sottoproblema una volta sola e memorizzandone il valore in una tabella --- \`e
+in questo senso un metodo di soluzione tabulare, applicabile a sottoproblemi non
+indipendenti, a differenza del divide-et-impera. Il costo cessa cos\`i di
+dipendere dal numero di cammini dell'albero di ricorsione e diventa
 proporzionale al numero di sottoproblemi distinti, come si vedr\`a nella
 Sezione~\ref{sec:analisi}.
 
-Entrambi i criteri di applicabilit\`a sono dunque soddisfatti.
-
 % ============================================================
-\section{Gli algoritmi}\label{sec:algoritmi}
+\section{I due algoritmi}\label{sec:algoritmi}
 
 Le fasi 3 e 4 del paradigma danno luogo ai due algoritmi richiesti dal
 Compito~1: il primo calcola il valore di una soluzione ottima riempiendo una
@@ -243,9 +239,8 @@ tabella con strategia bottom-up, il secondo ricostruisce una soluzione ottima a
 partire dalla tabella cos\`i ottenuta.
 
 \subsection{Calcolo del valore di una soluzione ottima}
-La tabella $K$ ha $n+1$ righe e $W+1$ colonne, indicizzate a partire da zero:
-$K[i,c]$ ospita il valore $K(i,c)$ definito nella Sezione~2. La riga $0$ \`e il
-caso base, le righe successive traducono la ricorrenza.
+La tabella $K$ ha $n+1$ righe e $W+1$ colonne, indicizzate a partire da zero. La
+riga $0$ \`e il caso base, le righe successive traducono la ricorrenza.
 
 \servespazio{12\baselineskip}
 \begin{pseudocodice}{Knapsack-Value$(w,v,n,W)$}
@@ -259,12 +254,12 @@ caso base, le righe successive traducono la ricorrenza.
 \riga{8}{0}{\kw{return} $K$}
 \end{pseudocodice}
 
-Il valore ottimo dell'istanza \`e $K[n,W]$. L'ordine di riempimento --- righe
-crescenti, e colonne crescenti all'interno di ciascuna riga --- garantisce che i
-valori della riga $i-1$ letti alle righe 6 e 7 siano gi\`a stati calcolati
-quando servono. La tabella viene riempita per intero, comprese le celle che la
-ricorrenza non raggiungerebbe partendo da $(n,W)$: il costo non dipende dunque
-dai dati dell'istanza, ma soltanto da $n$ e $W$.
+Il valore ottimo dell'istanza \`e $K[n,W]$. L'ordine crescente delle righe
+garantisce che i valori letti alle righe 6 e 7 siano gi\`a stati calcolati;
+l'ordine delle colonne \`e invece indifferente, perch\'e nessuna cella della
+riga $i$ viene letta. Questa libert\`a cadr\`a nella variante a spazio ridotto.
+La tabella viene riempita per intero, comprese le celle che la ricorrenza non
+raggiungerebbe partendo da $(n,W)$.
 
 \subsection{Costruzione di una soluzione ottima}
 La tabella $K$ contiene gi\`a l'informazione necessaria a risalire alle scelte
@@ -279,17 +274,19 @@ residua $c$.
 \riga{3}{0}{\kw{for} $i \gets n$ \kw{downto} $1$}
 \riga{4}{1}{\kw{do} \kw{if} $K[i,c] \neq K[i-1,c]$}
 \riga{5}{2}{\kw{then} $S \gets S \cup \{i\}$}
-\riga{6}{3}{$c \gets c - w[i]$}
+\riga{6}{2}{\phantom{\kw{then} }$c \gets c - w[i]$}
 \riga{7}{0}{\kw{return} $S$}
 \end{pseudocodice}
 
-Il test della riga 4 decide se l'oggetto $i$ \`e stato preso. Se i due valori
-differiscono, l'oggetto $i$ appartiene a ogni soluzione ottima del sottoproblema
-$(i,c)$: in caso contrario esisterebbe una soluzione ottima contenuta in
-$\{1,\dots,i-1\}$, ammissibile per $(i-1,c)$, di valore $K[i,c] > K[i-1,c]$.
-Se invece i due valori coincidono, esiste una soluzione ottima di $(i,c)$ che
-non contiene l'oggetto $i$, ed \`e quella che l'algoritmo segue. Poich\'e le
-soluzioni ottime possono essere pi\`u d'una, l'algoritmo ne restituisce una.
+Il test della riga 4 decide se l'oggetto $i$ \`e stato preso. Poich\'e
+$K[i,c] \ge K[i-1,c]$, che i due valori differiscano significa
+$K[i,c] > K[i-1,c]$; allora l'oggetto $i$ appartiene a ogni soluzione ottima del
+sottoproblema $(i,c)$, altrimenti ne esisterebbe una contenuta in
+$\{1,\dots,i-1\}$, ammissibile per $(i-1,c)$ e di valore $K[i,c] > K[i-1,c]$,
+contro la definizione di $K[i-1,c]$. Se invece i due valori coincidono, esiste
+una soluzione ottima di $(i,c)$ che non contiene l'oggetto $i$, ed \`e quella che
+l'algoritmo segue. Poich\'e le soluzioni ottime possono essere pi\`u d'una,
+l'algoritmo ne restituisce una.
 
 % ============================================================
 \section{Analisi asintotica}\label{sec:analisi}
@@ -297,21 +294,20 @@ soluzioni ottime possono essere pi\`u d'una, l'algoritmo ne restituisce una.
 L'analisi che segue riguarda \proc{Knapsack-Value}, il primo dei due algoritmi.
 
 \subsection{Tempo di esecuzione}
-Le righe 1--2 inizializzano la riga $0$ della tabella: $W+1$ iterazioni di costo
-costante, dunque $\To(W)$. Le righe 3--7 sono due cicli annidati, $n$ iterazioni
-esterne e $W+1$ interne; il corpo esegue un confronto, due letture dalla riga
-precedente, un massimo e un assegnamento, tutte operazioni di costo costante,
-per un totale di $\To(nW)$. La riga 8 restituisce la tabella in tempo costante.
-Sommando,
+Le righe 1--2 azzerano il caso base: $W+1$ iterazioni di costo costante, dunque
+$\To(W)$. Le righe 3--7 sono due cicli annidati, $n$ iterazioni esterne e $W+1$
+interne; il corpo esegue in entrambi i rami un numero costante di letture,
+confronti e assegnamenti, per un totale di $\To(nW)$. La riga 8 restituisce la
+tabella in tempo costante. Sommando,
 \[
   T(n,W) = \To(W) + \To(nW) + \To(1) = \To(nW) .
 \]
 
-Si tratta di un $\To$ e non di un semplice $\Oh$: il numero di operazioni non
-dipende dai dati dell'istanza. Non esistono un caso migliore e un caso
-peggiore, perch\'e i due cicli percorrono comunque tutte le celle qualunque
-siano pesi e valori; l'unico effetto dei dati \`e la scelta del ramo alle righe
-6 o 7, che costano entrambe $\To(1)$.
+Si tratta di un $\To$ e non di un semplice $\Oh$: il corpo del ciclo pi\`u
+annidato \`e eseguito esattamente $n(W+1)$ volte qualunque siano pesi e valori,
+dunque il tempo \`e insieme $\Oh(nW)$ e $\Om(nW)$. Non c'\`e differenza fra caso
+migliore e caso peggiore; l'unico effetto dei dati \`e la scelta del ramo alle
+righe 6 o 7, che costano entrambe $\To(1)$.
 
 \subsection{Occupazione di memoria}
 La tabella ha $(n+1)(W+1)$ celle, dunque $\To(nW)$. Oltre a essa l'algoritmo usa
@@ -322,59 +318,60 @@ tabella. Lo spazio complessivo \`e quindi
   S(n,W) = \To(nW) .
 \]
 Poich\'e nell'implementazione ogni cella \`e un intero a 64 bit
-(Sezione~\ref{sec:implementazione}), l'occupazione esatta \`e $(n+1)(W+1)\cdot 8$
-byte: una quantit\`a nota a priori, che la Sezione~\ref{sec:sperimentazione}
-confronta con la memoria effettivamente misurata.
+(Sezione~\ref{sec:implementazione}), l'occupazione della tabella \`e
+$(n+1)(W+1)\cdot 8$ byte a meno delle intestazioni degli array: una quantit\`a
+nota a priori, che la Sezione~\ref{sec:sperimentazione} confronta con la memoria
+effettivamente misurata.
 
 \subsection{Natura pseudo-polinomiale}
 $\To(nW)$ \`e lineare nel \emph{valore} della capacit\`a, non nella lunghezza
 della sua codifica. Se $W$ si scrive con $b$ bit, allora $W$ pu\`o valere fino a
-$2^b - 1$, e il tempo di esecuzione cresce esponenzialmente nella dimensione
-dell'ingresso: l'algoritmo non \`e polinomiale in senso stretto, ed \`e detto
-pseudo-polinomiale. Ci\`o \`e coerente con il fatto che lo Zaino 0/1 \`e un
-problema NP-hard.
+$2^b - 1$, e il tempo di esecuzione, pur essendo lineare in $n$, cresce come
+$2^b$: non \`e limitato da alcun polinomio nella lunghezza dell'ingresso.
+L'algoritmo non \`e dunque polinomiale in senso stretto, ed \`e detto
+pseudo-polinomiale.
 
-La conseguenza non \`e soltanto teorica: \`e $W$, prima ancora di $n$, a
-determinare quali istanze siano trattabili. Con $n = 2000$ e $W = 10^6$ la
-tabella richiederebbe circa 15 GB, fuori dalla portata di una macchina comune,
-mentre la stessa istanza \`e alla portata della variante a spazio ridotto
-descritta nella sezione seguente.
+Ci\`o \`e coerente con lo statuto del problema, che \`e NP-hard in senso debole:
+la sua versione decisionale \`e NP-completa, e proprio l'esistenza di un
+algoritmo pseudo-polinomiale lo distingue dai problemi fortemente NP-hard, per i
+quali un tale algoritmo non pu\`o esistere a meno che $P = NP$. Il fatto \`e
+riportato dalla letteratura e non \`e dimostrato in questo elaborato.
 
 \medskip\noindent
-Il secondo algoritmo, \proc{Knapsack-Solution}, esegue $n$ iterazioni di costo
-costante e occupa spazio aggiuntivo $\To(n)$ per l'insieme restituito; richiede
-per\`o la tabella prodotta dal primo, ed \`e quindi il primo a determinare il
-costo complessivo.
+\proc{Knapsack-Solution} esegue $n$ iterazioni di costo costante e occupa
+$\Oh(n)$ per l'insieme restituito, ma richiede la tabella prodotta dal primo
+algoritmo: \`e questo a determinare il costo complessivo.
 
 % ============================================================
 \section{Implementazione e varianti}\label{sec:implementazione}
 
 \subsection{Struttura del codice}
 I due algoritmi della Sezione~\ref{sec:algoritmi} e la variante a spazio ridotto
-sono codificati in tre classi che ne seguono lo pseudocodice riga per riga; le
-altre servono a generare le istanze, a verificare e a misurare.
+sono codificati in tre classi che ne seguono lo pseudocodice riga per riga, con
+le sole differenze annotate pi\`u avanti; le restanti generano le istanze,
+controllano i risultati e prendono le misure.
 \begin{itemize}
   \item \texttt{KnapsackValue} --- calcolo bottom-up della tabella;
   \item \texttt{KnapsackSolution} --- ricostruzione di una soluzione ottima;
-  \item \texttt{KnapsackRolling} --- variante a spazio $\To(W)$;
+  \item \texttt{KnapsackRolling} --- variante a spazio ridotto;
   \item \texttt{Instance} --- generazione e lettura delle istanze da file;
-  \item \texttt{BruteForce} --- enumerazione dei sottoinsiemi, riscontro sulle
-        istanze piccole;
+  \item \texttt{BruteForce} --- ricerca esaustiva sui sottoinsiemi, riscontro
+        sulle istanze piccole;
+  \item \texttt{CorrectnessTest} --- batteria di prove di correttezza;
   \item \texttt{Bench} --- esecuzione ripetuta e raccolta delle misure;
   \item \texttt{Main} --- programma a riga di comando.
 \end{itemize}
-L'elaborazione \`e interamente batch, con ingresso e uscita da file, come la
-traccia consente. Il modulo che si appoggia al solver commerciale \`e tenuto
-separato dal resto e viene compilato solo se la libreria \`e presente, cos\`i
-che il nucleo dell'elaborato resti compilabile ed eseguibile senza di essa.
+L'elaborazione \`e interamente batch, con ingresso e uscita da file.
 
 La correttezza \`e verificata da una batteria di 305 test che, su istanze
 generate con parametri e semi diversi, confronta fra loro il valore ottimo dei
 tre algoritmi e controlla che la soluzione ricostruita sia ammissibile e valga
-esattamente l'ottimo.
+l'ottimo.
 
 \subsection{La variante a spazio ridotto}
-Il Compito~2 chiede varianti che migliorino le prestazioni spaziali. Nel calcolo
+Il Compito~2 chiede varianti che migliorino le prestazioni spaziali. Quella
+adottata qui \`e nota come \emph{rolling array}, ed \`e con questo nome che
+compare nelle figure. Nel calcolo
 di $K[i,c]$ intervengono soltanto celle della riga $i-1$: le righe precedenti,
 una volta usate, non servono pi\`u. Se ne pu\`o quindi tenere una sola, e
 aggiornarla in luogo.
@@ -390,46 +387,41 @@ aggiornarla in luogo.
 \riga{7}{0}{\kw{return} $K[W]$}
 \end{pseudocodice}
 
-Il verso decrescente della riga 4 non \`e un dettaglio: garantisce che
-$K[c-w[i]]$ contenga ancora il valore dell'iterazione precedente, cio\`e
-$K[i-1,\,c-w_i]$. Percorrendo $c$ in senso crescente si leggerebbe un valore
-gi\`a aggiornato nell'iterazione corrente, e l'oggetto $i$ finirebbe per essere
-preso pi\`u volte: si risolverebbe, cio\`e, un problema diverso.
+Il verso decrescente della riga 4 garantisce che $K[c-w[i]]$ contenga ancora il
+valore dell'iterazione precedente, cio\`e $K[i-1,\,c-w_i]$. Percorrendo $c$ in
+senso crescente si leggerebbe un valore gi\`a aggiornato nell'iterazione
+corrente, e l'oggetto $i$ finirebbe per essere preso pi\`u volte.
 
-Il tempo resta $\To(nW)$, mentre lo spazio scende da $\To(nW)$ a $\To(W)$. Il
-prezzo \`e la perdita della ricostruzione: senza le righe precedenti il
+Lo spazio scende da $\To(nW)$ a $\To(n+W)$: $\To(W)$ di memoria di lavoro oltre
+ai vettori d'ingresso, che per $W \gg n$ si riduce di fatto a $\To(W)$. Il tempo
+resta $\Oh(nW)$, ma non pi\`u $\To(nW)$: il ciclo interno si ferma a $w[i]$,
+quindi il numero di iterazioni dipende dai pesi. Con pesi uniformi in $[1,W]$ ne
+esegue in media met\`a, ed \`e questa la ragione per cui nelle misure la variante
+risulta circa tre volte pi\`u veloce della tabella pur avendo lo stesso ordine di
+grandezza asintotico.
+
+Il prezzo \`e la perdita della ricostruzione: senza le righe precedenti il
 confronto $K[i,c] \neq K[i-1,c]$ non \`e pi\`u eseguibile, e della soluzione
-resta il solo valore. I due algoritmi non si sostituiscono dunque l'un l'altro,
-ma rispondono a esigenze diverse; la Sezione~\ref{sec:sperimentazione} mostra di
-quanto la variante estenda le istanze trattabili.
+resta il solo valore.
 
-\subsection{Scelte tecnologiche}
-Il linguaggio scelto \`e Java, versione 21: la compilazione appena in tempo lo
-rende abbastanza veloce da reggere istanze grandi, ed \`e disponibile un'API
-ufficiale del solver usato come riscontro esterno. Il nucleo dell'elaborato non
-impiega alcuna libreria esterna, soltanto quella standard. Il solver
-commerciale, Gurobi, compare unicamente nel modulo separato di cui sopra, come
-oracolo di correttezza e come termine di paragone nei benchmark. La campagna di
-misure e le figure sono prodotte da script Python che si limitano a lanciare i
-programmi Java, a raccoglierne le uscite in file CSV e a disegnare i grafici.
+\subsection{Scelte tecnologiche e implementative}
+Il linguaggio scelto \`e Java, versione 21: \`e abbastanza veloce da reggere
+istanze grandi ed \`e disponibile un'API ufficiale di Gurobi. Il nucleo
+dell'elaborato usa la sola libreria standard; il modulo che chiama il solver \`e
+separato e viene compilato solo se la libreria \`e presente, cos\`i che tutto il
+resto resti eseguibile senza. Lo sviluppo \`e avvenuto da riga di comando, con
+compilazione diretta tramite \texttt{javac} guidata da uno script; la campagna di
+misure e le figure sono prodotte da script Python che lanciano i programmi Java,
+ne raccolgono le uscite in file CSV e disegnano i grafici.
 
-\subsection{Scelte implementative rilevanti}
-Le celle della tabella sono interi a 64 bit. La somma dei valori pu\`o infatti
-superare la capienza di un intero a 32 bit gi\`a con poche migliaia di oggetti,
-e in Java l'eccedenza non produce alcun errore: si otterrebbe un risultato
+Le celle della tabella sono interi a 64 bit. Il formato d'ingresso non pone
+limiti ai valori, e la loro somma pu\`o superare la capienza di un intero a 32
+bit: in Java l'eccedenza non produce alcun errore, e si otterrebbe un risultato
 sbagliato senza avvisi. La scelta raddoppia l'occupazione rispetto a un intero a
 32 bit, e i conti della Sezione~\ref{sec:analisi} ne tengono conto.
 
 Il caso base non richiede codice: in Java gli array sono azzerati alla creazione,
-e la riga $0$ della tabella vale quindi gi\`a $K[0,c] = 0$ per ogni $c$.
-
-Le misure sono prese con alcune cautele, senza le quali si misurerebbe la
-macchina virtuale anzich\'e l'algoritmo: alcune esecuzioni di riscaldamento
-prima di quelle cronometrate, perch\'e il codice appena avviato \`e ancora
-interpretato e non compilato; heap di dimensione fissa, per evitare i
-ridimensionamenti del gestore della memoria durante le misure; una raccolta dei
-rifiuti prima di ogni lettura dell'occupazione. Le istanze sono generate con semi
-prefissati, cos\`i che ogni misura sia ripetibile.
+e la riga $0$ contiene quindi gi\`a $0$ in ogni cella.
 
 % ============================================================
 \section{Sperimentazione}\label{sec:sperimentazione}
@@ -441,27 +433,32 @@ generatore dipende dal parametro che varia, cos\`i che ogni punto delle curve si
 riproducibile. Per separare i due fattori di crescita si eseguono due campagne
 distinte: nella prima $n$ cresce da $1000$ a $10\,000$ a passo $1000$ con $W$
 fermo a $1000$, nella seconda \`e $W$ a crescere nello stesso intervallo con $n$
-fermo a $1000$.
+fermo a $1000$. Poich\'e i pesi sono estratti in $[1,W]$, nella seconda campagna
+crescono insieme alla capacit\`a: le istanze restano di difficolt\`a costante, e
+di questo si tiene conto nel commento dei risultati.
 
 Ogni punto \`e il minimo di sette esecuzioni cronometrate, precedute da tre di
-riscaldamento; per il solver, che ha un costo di avvio proprio, si prendono tre
-soluzioni dopo una di riscaldamento e si legge il solo tempo di soluzione,
-escludendo la costruzione del modello. Il minimo, e non la media, perch\'e \`e
-l'inviluppo inferiore delle misure, quello meno esposto alle pause del gestore
-della memoria. L'occupazione di memoria \`e registrata due volte: calcolata dalla
-formula e misurata sull'heap, come mediana di tre letture prese dopo una raccolta
-dei rifiuti.
+riscaldamento, perch\'e il codice appena avviato \`e ancora interpretato e non
+compilato; per il solver, che ha un costo di avvio proprio, si prendono tre
+soluzioni dopo una di riscontro e si legge il solo tempo di soluzione,
+escludendo la costruzione del modello. Si prende il minimo e non la media
+perch\'e \`e la misura meno esposta alle pause del gestore della memoria.
+L'occupazione di memoria \`e registrata due volte: calcolata dalla formula e
+misurata sull'heap, come mediana di tre letture prese dopo una raccolta dei
+rifiuti.
 
 Le misure provengono da un portatile con processore Apple M1 e sistema
-macOS~26.5, macchina virtuale Java~21 con heap fissata a 2~GB (valore minimo
-uguale al massimo, per evitare ridimensionamenti durante le misure). Il solver di
-confronto \`e Gurobi~12.0.3, configurato con un solo thread per non avvantaggiarlo
-rispetto agli algoritmi in esame, che sono a thread singolo.
+macOS~26.5.2, macchina virtuale Java~21. Gli sweep della programmazione dinamica
+girano con heap fissato a 2~GB, valore minimo uguale al massimo per evitare
+ridimensionamenti durante le misure. Il solver di confronto \`e Gurobi~12.0.3,
+configurato con un solo thread, come gli algoritmi in esame, e con gap di
+ottimalit\`a nullo, perch\'e lo si usa come oracolo esatto e non come euristica.
 
 \subsection{Crescita empirica e analisi asintotica}
 Nella Figura~\ref{fig:tempo-n} il tempo dei due algoritmi di programmazione
 dinamica cresce in proporzione a $n$, come previsto da $\To(nW)$ a capacit\`a
-fissa, mentre quello di Gurobi oscilla senza un andamento riconoscibile.
+fissa, mentre quello di Gurobi cresce in modo irregolare e non monotono, con
+oscillazioni ampie.
 
 Nella Figura~\ref{fig:tempo-w} \`e la programmazione dinamica a rallentare al
 crescere della capacit\`a, mentre Gurobi resta pressoch\'e costante: \`e la
@@ -470,10 +467,14 @@ tempo dipende dal valore di $W$ e non dalla sua lunghezza.
 
 La linearit\`a non \`e soltanto un'impressione visiva. Interpolando le misure con
 una retta ai minimi quadrati, il coefficiente di determinazione $R^2$ vale
-$0{,}9996$ per l'algoritmo base al crescere di $n$ e $0{,}9938$ al crescere di
-$W$; per la variante a spazio ridotto vale $0{,}9982$ in entrambi i casi. Il
-tempo \`e dunque lineare in ciascuno dei due fattori a parit\`a dell'altro, che
-\`e quanto afferma $\To(nW)$.
+$0{,}9998$ per l'algoritmo base al crescere di $n$ e $0{,}9967$ al crescere di
+$W$; per la variante a spazio ridotto vale $0{,}9998$ in entrambi i casi. Pi\`u
+probante ancora \`e il costo di una singola cella: per la variante a spazio
+ridotto vale $0{,}43$ nanosecondi crescendo su $n$ e $0{,}45$ crescendo su $W$,
+lo stesso numero in due campagne indipendenti. Per l'algoritmo base i due valori
+si discostano, $1{,}3$ contro $0{,}9$, verosimilmente per la struttura della
+tabella, che in Java \`e un vettore di riferimenti a righe separate: a parit\`a
+di celle, dieci volte pi\`u righe costano di pi\`u.
 
 \begin{figure}[tbp]
   \centering
@@ -491,67 +492,70 @@ tempo \`e dunque lineare in ciascuno dei due fattori a parit\`a dell'altro, che
   \label{fig:tempo-w}
 \end{figure}
 
-Le due campagne coprono lo stesso intervallo di celle calcolate, da un milione a
-dieci milioni, ma il costo di una singola cella non \`e il medesimo: circa
-$1{,}4$ nanosecondi quando a crescere \`e $n$ e circa $1{,}0$ quando a crescere
-\`e $W$, mentre nella variante a spazio ridotto i due valori coincidono; la
-differenza \`e imputabile alla struttura della tabella, che in Java \`e un
-vettore di riferimenti a righe separate, tante quante gli oggetti.
-
 Quanto alla memoria, nella Figura~\ref{fig:memoria} i valori misurati sull'heap
-seguono la formula $(n+1)(W+1)\cdot 8$ byte entro il 5\%, uno scarto attribuibile
-alle strutture di servizio della macchina virtuale. La previsione dell'analisi
-asintotica \`e quindi confermata anche nella costante, non solo nell'andamento.
+seguono la formula $(n+1)(W+1)\cdot 8$ byte entro il 5\%. Lo scarto \`e dovuto
+quasi per intero alla granularit\`a di mezzo megabyte con cui la macchina
+virtuale alloca --- le letture sono multipli esatti di quel valore, e lo scarto
+cala al crescere della tabella --- mentre le intestazioni degli array pesano
+appena lo $0{,}25\%$. La previsione dell'analisi asintotica \`e quindi confermata
+anche nella costante, non solo nell'andamento.
 
 \begin{figure}[tbp]
   \centering
   \includegraphics[width=\linewidth]{fig/memoria.pdf}
   \caption{Occupazione di memoria della tabella, calcolata dalla formula (linea)
-  e misurata sull'heap (cerchi), a confronto con quella del rolling array. Del
-  rolling array \`e riportata la sola formula: la sua occupazione sta sotto la
-  soglia di risoluzione della misura.}
+  e misurata sull'heap (cerchi), a confronto con quella della variante a spazio
+  ridotto, di cui si riporta la sola formula (Sezione~\ref{sec:limitazioni}).}
   \label{fig:memoria}
 \end{figure}
 
 \subsection{Limiti pratici}
 La variante a spazio ridotto non serve a essere pi\`u veloce, ma a rendere
-trattabili istanze che altrimenti non lo sarebbero. Fissati $n = 2000$ e una
-heap di 2~GB, si \`e fatta crescere la sola capacit\`a:
+trattabili istanze che altrimenti non lo sarebbero. Fissati $n = 2000$ e un
+tetto di memoria, si \`e fatta crescere la sola capacit\`a; a differenza delle
+curve, ciascuna riga della Tabella~\ref{tab:limiti} \`e una singola esecuzione a
+freddo, su una macchina virtuale appena avviata.
 
-\begin{center}
-\begin{tabular}{rrlrl}
-\toprule
-$W$ & \multicolumn{2}{c}{tabella $\To(nW)$} & \multicolumn{2}{c}{rolling $\To(W)$} \\
-\midrule
-$100\,000$   & 1,5 GB  & 0,76 s              & 781 KB & 0,09 s \\
-$300\,000$   & 4,5 GB  & memoria esaurita    & 2,3 MB & 0,27 s \\
-$1\,000\,000$ & 14,9 GB & memoria esaurita   & 7,6 MB & 0,92 s \\
-\bottomrule
-\end{tabular}
-\end{center}
+\begin{table}[htbp]
+  \centering
+  \caption{Memoria richiesta e tempo al crescere di $W$, con $n = 2000$. La
+  tabella completa dispone di 2~GB di heap, la variante a spazio ridotto di
+  1~GB. I prefissi sono binari.}
+  \label{tab:limiti}
+  \begin{tabular}{rrlrl}
+  \toprule
+  & \multicolumn{2}{c}{tabella $\To(nW)$} & \multicolumn{2}{c}{a spazio ridotto} \\
+  \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+  $W$ & memoria & tempo & memoria & tempo \\
+  \midrule
+  $100\,000$    & 1,5 GB  & 0,82 s           & 781 KB & 0,09 s \\
+  $300\,000$    & 4,5 GB  & memoria esaurita & 2,3 MB & 0,27 s \\
+  $1\,000\,000$ & 14,9 GB & memoria esaurita & 7,6 MB & 0,92 s \\
+  \bottomrule
+  \end{tabular}
+\end{table}
 
-\noindent
 Gi\`a a $W = 300\,000$ l'algoritmo base non arriva in fondo, mentre la variante
 risolve la stessa istanza usando due megabyte e un quarto di secondo. \`E il
 risultato richiesto dal Compito~2: a parit\`a di tempo asintotico, la riduzione
-dello spazio estende di oltre un ordine di grandezza le capacit\`a trattabili.
+dello spazio estende di almeno un ordine di grandezza, sui casi provati, le
+capacit\`a trattabili.
 
 \subsection{Confronto con il solver}
-Su tutte le istanze provate il valore ottimo calcolato dalla programmazione
-dinamica coincide con quello del solver: il riscontro esterno di correttezza \`e
-soddisfatto. Sui tempi i due si comportano diversamente e nessuno dei due domina
-l'altro. Al crescere del numero di oggetti la programmazione dinamica \`e pi\`u
-veloce e, soprattutto, prevedibile: il suo tempo \`e determinato da $n$ e $W$,
-mentre quello del solver dipende da quanto l'istanza si presta ai tagli e alle
-riduzioni del branch and bound, e nelle misure oscilla in modo non monotono. Al
-crescere della capacit\`a le parti si invertono: per il solver $W$ \`e soltanto
-un coefficiente del vincolo, mentre per la programmazione dinamica \`e una
-dimensione della tabella.
+Su tutti i venti punti delle due campagne il valore ottimo calcolato dalla
+programmazione dinamica coincide con quello del solver, che lo registra nei file
+CSV accanto ai tempi: il riscontro esterno di correttezza \`e soddisfatto. Sui
+tempi nessuno dei due domina l'altro. La programmazione dinamica ha un tempo
+prevedibile, determinato da $n$ e $W$, mentre quello del solver dipende da
+quanto l'istanza si presta ai tagli e alle riduzioni del branch and bound. Al
+crescere della capacit\`a le parti si invertono: per il solver $W$ entra
+soltanto come coefficiente del vincolo, e su istanze non correlate come queste
+la sua crescita \`e pressoch\'e ininfluente; per la programmazione dinamica \`e
+invece una dimensione della tabella, e il costo cresce comunque.
 
 \subsection{Riproduzione degli esperimenti}
 Il codice si compila con lo script fornito e non richiede altro che una macchina
-virtuale Java; il modulo del solver viene incluso soltanto se la libreria \`e
-raggiungibile. I comandi principali sono i seguenti.
+virtuale Java. I comandi principali sono i seguenti.
 
 \begin{codice}
 \begin{Verbatim}[fontsize=\small]
@@ -572,49 +576,66 @@ java -Xms2g -Xmx2g -cp bin knapsack.Main bench nsweep \
 
 \noindent
 L'opzione \texttt{-{}-dump-table} salva la tabella $K$ in formato CSV, cos\`i che
-il contenuto prodotto dal primo algoritmo sia disponibile per un'ispezione
-diretta. I file CSV della campagna fanno parte del materiale consegnato e si
-aprono con un foglio di calcolo.
+sia disponibile per l'ispezione richiesta dalla traccia. I file CSV della
+campagna fanno parte del materiale consegnato.
 
 % ============================================================
 \section{Limitazioni e conclusioni}
 
-\subsection{Limitazioni riscontrate}
+\subsection{Limitazioni riscontrate}\label{sec:limitazioni}
 La misura della memoria sull'heap ha una risoluzione dell'ordine del mezzo
 megabyte, imposta dalla granularit\`a con cui la macchina virtuale alloca:
-sufficiente per la tabella, che ne occupa decine, inutilizzabile per la variante
-a spazio ridotto, i cui pochi kilobyte restano sotto la soglia. Di quest'ultima
-si riporta perci\`o la sola occupazione calcolata, che \`e comunque esatta.
+sufficiente per la tabella, che occupa decine o centinaia di megabyte,
+inutilizzabile per la variante a spazio ridotto, i cui pochi kilobyte restano
+sotto la soglia. Di quest'ultima si riporta perci\`o la sola occupazione
+calcolata.
 
-La variante a spazio ridotto perde la ricostruzione della soluzione e ne
-restituisce il solo valore. Esiste una tecnica, dovuta a Hirschberg, che
-recupera la soluzione mantenendo lo spazio $\To(W)$ a prezzo di un fattore
-costante sul tempo, dividendo ricorsivamente il problema attorno a un punto di
-taglio; non \`e stata implementata, e resta lo sviluppo naturale del lavoro.
+La variante a spazio ridotto restituisce il solo valore ottimo: per ottenere
+anche l'insieme degli oggetti scelti occorre la tabella completa, e quindi la
+memoria che la variante serve a risparmiare.
 
-Le misure provengono da una sola macchina e da una sola macchina virtuale: gli
-andamenti sono affidabili, i valori assoluti no. Le istanze sono generate con
-pesi e valori indipendenti e uniformi, che non coprono le famiglie note per
-essere difficili per i metodi di enumerazione implicita, come quelle in cui il
-valore \`e proporzionale al peso; il confronto con il solver va quindi letto per
-quello che \`e, un termine di paragone esterno su istanze casuali, e non come
-uno studio sistematico del solver.
+I pesi sono estratti in $[1,W]$: al crescere della capacit\`a crescono con essa,
+e nella seconda campagna la soluzione ottima resta composta da pochi oggetti.
+Le istanze non diventano dunque mai pi\`u difficili, e la piattezza della curva
+del solver va letta anche alla luce di questo. La convenzione seguita in
+letteratura fissa invece l'intervallo dei pesi e pone la capacit\`a a una
+frazione del peso totale. Non sono state generate le famiglie note per essere
+difficili per i metodi di enumerazione implicita, come quelle fortemente
+correlate, in cui il valore \`e il peso pi\`u una costante: il confronto con il
+solver va quindi letto per quello che \`e, un termine di paragone esterno su
+istanze casuali, e non come uno studio sistematico del solver.
+
+Le misure provengono infine da una sola macchina e da una sola macchina
+virtuale: gli andamenti sono affidabili, i valori assoluti no.
 
 \subsection{Conclusioni}
 I tre compiti sono stati svolti sul problema dello Zaino 0/1: la programmazione
-dinamica \`e applicabile perch\'e valgono entrambi i criteri, sottostruttura
-ottima e sovrapposizione dei sottoproblemi; i due algoritmi sono stati scritti,
-analizzati e codificati; la sperimentazione ne ha confrontato la crescita
-empirica con l'analisi asintotica.
+dinamica \`e applicabile perch\'e valgono entrambi i criteri; i due algoritmi
+sono stati scritti, analizzati e codificati; la sperimentazione ne ha confrontato
+la crescita empirica con l'analisi asintotica.
 
-Il risultato che vale la pena trattenere \`e duplice. Da un lato l'analisi
-prevede il comportamento osservato con precisione insolita: il tempo cresce
-linearmente in ciascuno dei due fattori e la memoria segue la formula entro il
-5\%, senza sorprese legate ai dati, perch\'e l'algoritmo percorre comunque tutte
-le celle. Dall'altro il fattore che decide quali istanze siano davvero
-trattabili non \`e il numero di oggetti ma la capacit\`a, ed \`e sulla memoria,
-non sul tempo, che il limite si presenta per primo: da qui l'utilit\`a concreta
-della variante a spazio ridotto, che sposta quel limite di oltre un ordine di
-grandezza.
+Due sono i risultati principali. Da un lato l'analisi prevede il comportamento
+osservato con precisione: il tempo cresce linearmente in ciascuno dei due
+fattori e la memoria segue la formula entro il 5\%. Dall'altro il fattore che
+decide quali istanze siano davvero trattabili non \`e il numero di oggetti ma la
+capacit\`a, ed \`e sulla memoria, non sul tempo, che il limite si presenta per
+primo: da qui l'utilit\`a concreta della variante a spazio ridotto.
+
+% ============================================================
+\section*{Riferimenti}
+\addcontentsline{toc}{section}{Riferimenti}
+
+\begin{itemize}
+  \item M. Zanella, \emph{Algoritmi e Strutture Dati}, lucidi del corso,
+        Universit\`a degli Studi di Brescia, a.a.\ 2025--26 --- in particolare
+        la sezione sulla programmazione dinamica, da cui provengono le quattro
+        fasi del paradigma e i due segni distintivi.
+  \item T. H. Cormen, C. E. Leiserson, R. L. Rivest, C. Stein,
+        \emph{Introduzione agli algoritmi e strutture dati}, McGraw-Hill.
+  \item H. Kellerer, U. Pferschy, D. Pisinger, \emph{Knapsack Problems},
+        Springer, 2004.
+  \item D. Pisinger, \emph{Where are the hard knapsack problems?}, Computers and
+        Operations Research 32 (2005), 2271--2284.
+\end{itemize}
 
 \end{document}

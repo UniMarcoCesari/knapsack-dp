@@ -51,25 +51,28 @@ public final class Bench {
 
     private static PrintWriter writer(Path out) throws IOException {
         PrintWriter csv = new PrintWriter(Files.newBufferedWriter(out));
-        csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_teorica,mem_misurata");
+        csv.println("sweep,algo,n,W,seed,reps,ms_mediana,ms_min,mem_teorica,mem_misurata,valore");
         return csv;
     }
 
     private static void point(PrintWriter csv, String sweep, Instance ist, int reps, long seedTag) {
+        // valore ottimo del punto: finisce nel CSV, cosi' il confronto con il
+        // solver (GurobiBench) resta documentato istanza per istanza
+        long ottimo = KnapsackRolling.value(ist);
         double[] base = measure(reps, () -> {
             long[][] K = KnapsackValue.table(ist);
             sink += K[ist.n][ist.W];
         });
         long baseMem = measureHeap(() -> KnapsackValue.table(ist));
         // Locale.ROOT: punto decimale sempre, la virgola è il separatore del CSV
-        csv.printf(java.util.Locale.ROOT, "%s,base,%d,%d,%d,%d,%.3f,%.3f,%d,%d%n",
-                sweep, ist.n, ist.W, seedTag, reps, base[0], base[1], ist.tableBytes(), baseMem);
+        csv.printf(java.util.Locale.ROOT, "%s,base,%d,%d,%d,%d,%.3f,%.3f,%d,%d,%d%n",
+                sweep, ist.n, ist.W, seedTag, reps, base[0], base[1], ist.tableBytes(), baseMem, ottimo);
 
         double[] roll = measure(reps, () -> sink += KnapsackRolling.value(ist));
         // il rolling rende garbage il suo array al ritorno: si rialloca per misurarlo
         long rollMem = measureHeap(() -> new long[ist.W + 1]);
-        csv.printf(java.util.Locale.ROOT, "%s,rolling,%d,%d,%d,%d,%.3f,%.3f,%d,%d%n",
-                sweep, ist.n, ist.W, seedTag, reps, roll[0], roll[1], ist.rollingBytes(), rollMem);
+        csv.printf(java.util.Locale.ROOT, "%s,rolling,%d,%d,%d,%d,%.3f,%.3f,%d,%d,%d%n",
+                sweep, ist.n, ist.W, seedTag, reps, roll[0], roll[1], ist.rollingBytes(), rollMem, ottimo);
         csv.flush();
     }
 
