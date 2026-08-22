@@ -1,72 +1,53 @@
 # Prossimi Passi — Progetto Knapsack (Elaborato ASD)
 
-Priorità di lavoro, ordinate per resa rispetto ai tre compiti della traccia
-(`../elaborato.pdf`). Criterio guida: **prima ciò che la traccia chiede
-esplicitamente**, poi gli extra.
+Stato al 22 agosto 2026. I tre compiti della traccia (`../elaborato.pdf`) sono
+svolti; relazione, presentazione e demo esistono. Quel che resta è rilettura,
+consegna e un'estensione facoltativa.
 
-## Cosa chiede la traccia (promemoria)
+## Fatto
 
-| Compito | Richiesta |
+| Compito | Dove |
 |---|---|
-| 1 | Problema, applicabilità della PD, pseudocodice dei due algoritmi, analisi asintotica del primo |
-| 2 | Codificare i due algoritmi, **con varianti che migliorino le prestazioni spaziali** così da estendere le dimensioni delle istanze elaborabili |
-| 3 | Istanze di dimensioni diverse, registrare **tempo e occupazione di memoria** per ogni esecuzione, confrontare la crescita empirica con quella **attesa dall'analisi asintotica** |
+| 1 — problema, applicabilità, pseudocodice, analisi asintotica | relazione §§1–4 |
+| 2 — codifica dei due algoritmi + variante spaziale | `src/`, relazione §5 |
+| 3 — sperimentazione, tempo e memoria, empirico vs asintotico | `campagna.py`, relazione §6 |
 
-Gurobi non è richiesto: resta solo come oracolo di correttezza e baseline di
-confronto, come dichiarato nella relazione.
+Inoltre: 305 test di correttezza, Gurobi come oracolo esterno, `demo.sh` per la
+prova orale, `presentazione/presentazione.tex` (11 slide), figure vettoriali
+rigenerabili con `grafici.py`.
 
-## 🔴 Priorità Alta
+## Da fare
 
-### 1. Memoria misurata, non solo calcolata
-Il Compito 3 chiede di *registrare* l'occupazione di memoria e di valutarne la
-crescita empirica. Oggi la memoria è solo **calcolata analiticamente**
-(`(n+1)(W+1)·8` e `(W+1)·8` byte): scelta elegante e deterministica, da tenere,
-ma è un conto, non una misura.
-**Da fare:** aggiungere al `Bench` il picco di heap effettivo (es.
-`MemoryMXBean` / `Runtime` dopo `System.gc()`) come colonna a fianco di quella
-teorica, e nel report un grafico memoria-vs-n e memoria-vs-W. Il confronto
-"misurato vs teorico" è esattamente il confronto empirico-vs-asintotico chiesto.
+### 1. Rilettura della relazione
+Le §§2–7 non sono ancora state rilette da Marco. La §1 è validata dal 4 agosto.
 
-### 2. Relazione
-Le sezioni 2–7 di `relazione/relazione.tex` sono ancora segnaposto
-«Da compilare». È il deliverable valutato: ha la precedenza su qualunque
-aggiunta di codice.
+### 2. Consegna su Moodle (entro il 3 settembre 2026)
+La traccia chiede una cartella con:
+- relazione in formato **sorgente e PDF** (`relazione/relazione.tex` + `.pdf`);
+- codice sorgente e, possibilmente, eseguibile (`src/`, `gurobi-src/`, `bin/`);
+- i file usati per valutare le prestazioni: i CSV di `data/campagna/`.
 
-### 3. Presentazione
-Richiesta dalla traccia (slide 12: PowerPoint o PDF, pochi minuti sui punti
-salienti). Non esiste ancora.
+La presentazione può essere caricata anche dopo, purché entro il giorno prima
+dell'orale (10 settembre).
 
-## 🟡 Priorità Media
+### 3. Prova della demo
+`./demo.sh` gira in una decina di minuti; conviene provarla una volta di seguito
+prima dell'orale, e decidere se ridurre il passo 6 (la gara con la forza bruta).
 
-### 4. Algoritmo di Hirschberg (divide-et-impera)
-**È Compito 2 alla lettera:** variante che riduce lo spazio a Θ(W) *e*
-mantiene la ricostruzione della soluzione, che il rolling array perde.
-**Come fare:**
-1. Nuova classe `KnapsackHirschberg.java`.
-2. Rolling array in avanti e all'indietro per individuare il punto di taglio ottimo.
-3. Ricorsione sulle due metà.
-4. Integrare nella gara (`race.py`) per mostrare che, a pari memoria del
-   rolling array, estrae la soluzione esatta come l'algoritmo base.
+## Facoltativo
 
-## ⚪️ Scartato
+### Algoritmo di Hirschberg
+Recupererebbe la ricostruzione della soluzione in spazio Θ(W), che il rolling
+array perde: rolling in avanti e all'indietro per trovare il punto di taglio,
+poi ricorsione sulle due metà. È dichiarato fra le limitazioni della relazione
+come sviluppo naturale; non serve a completare la traccia.
+
+## Scartato
 
 ### Istanze "killer" per il solver ILP — rimosso il 2026-07-28
-Era stata implementata la generazione di istanze *strongly correlated* con
-`W = Σw_i/2` più i relativi sweep (`Bench.sweepKiller`, modalità `killer` di
-`GurobiBench`, `DemoCorrelated`, terza card del report). **Rimosso** per due
-motivi:
-
-1. **Fuori scopo:** raddoppiava sull'unica parte non richiesta (Gurobi) invece
-   che sul nucleo valutato.
-2. **I dati smentivano la tesi:** la didascalia sosteneva che il B&B di Gurobi
-   dovesse esplorare molti più nodi, ma nelle misure Gurobi vinceva in 7 punti
-   su 8 (a n=800: 3.2 ms contro 153 ms della PD). A n ≤ 800 con pesi in
-   [1000,1500] presolve e cover cuts risolvono quelle istanze senza fatica.
-
-Resta in `Instance.stronglyCorrelated` il solo generatore correlato, usato da
-`race.py --correlated`: serve a una tesi più modesta ma **onesta e sostenuta dai
-dati**, da spendere in una riga della relazione — il tempo della PD non dipende
-dalla distribuzione dei valori (resta Θ(n·W) e cresce liscio), quello del B&B sì
-ed è poco prevedibile (nelle misure oscillava fra 0.5 e 208 ms in modo non
-monotono). La garanzia di prevedibilità è un punto a favore della PD, e si
-argomenta senza sostenere che la PD sia più veloce.
+Generazione di istanze *strongly correlated* con `W = Σw_i/2` più i relativi
+sweep. Rimosso perché fuori scopo (raddoppiava sull'unica parte non richiesta) e
+perché i dati smentivano la tesi: Gurobi vinceva in 7 punti su 8. Resta il solo
+generatore correlato (`race.py --correlated`), per la tesi più modesta e onesta
+che il tempo della PD non dipende dalla distribuzione dei valori mentre quello
+del branch and bound sì.

@@ -6,3 +6,5 @@ gurobi.log
 data/race_*
 # output della campagna: CSV, report.html e istanze lim_* (rigenerabili con ./campagna.py)
 data/campagna/
+# istanza generata dalla demo (rigenerabile con ./demo.sh)
+data/demo_*

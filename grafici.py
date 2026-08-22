@@ -50,9 +50,15 @@ def leggi(nome):
         return list(csv.DictReader(f))
 
 
+# Come report.html: nei grafici si usa il minimo delle ripetizioni (inviluppo
+# inferiore, insensibile alle pause del garbage collector); i CSV riportano
+# anche la mediana.
+TEMPO = "ms_min"
+
+
 def serie(righe, algo, x):
     r = [riga for riga in righe if riga["algo"] == algo]
-    return [float(riga[x]) for riga in r], [float(riga["ms_mediana"]) for riga in r]
+    return [float(riga[x]) for riga in r], [float(riga[TEMPO]) for riga in r]
 
 
 def telaio(ax, xlabel, ylabel):
@@ -84,7 +90,7 @@ def etichette_separate(fig, ax, voci, minimo=11):
         etichetta(ax, x, y, testo, dy=spostate[i] - altezze[i])
 
 
-def grafico_tempo(sweep, xlabel, fisso, uscita):
+def grafico_tempo(sweep, xlabel, uscita):
     dp = leggi(f"dp_{sweep}.csv")
     grb = leggi(f"gurobi_{sweep}.csv")
     var = "n" if sweep == "n" else "W"
@@ -105,8 +111,7 @@ def grafico_tempo(sweep, xlabel, fisso, uscita):
     ax.set_xlim(left=0)
     ax.set_ylim(bottom=0)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}".replace(",", " ")))
-    ax.text(0.0, 1.06, fisso, transform=ax.transAxes, fontsize=8, color=SMORZATO)
-    fig.subplots_adjust(left=0.10, right=0.80, top=0.90, bottom=0.16)
+    fig.subplots_adjust(left=0.10, right=0.80, top=0.97, bottom=0.17)
     etichette_separate(fig, ax, voci)
     fig.savefig(FIG / uscita)
     plt.close(fig)
@@ -134,15 +139,13 @@ def grafico_memoria(uscita):
     etichetta(ax, ns[-1], float(roll[-1]["mem_teorica"]), "rolling\nΘ(W)", dy=0)
 
     ax.set_yscale("log")
-    telaio(ax, "n (numero di oggetti)", "memoria")
+    telaio(ax, "n (numero di oggetti, W fisso a 1000)", "memoria (scala logaritmica)")
+    ax.set_ylim(top=3e8)   # aria in alto per l'etichetta della tabella
     ax.set_yticks([1e4, 1e5, 1e6, 1e7, 1e8])
     ax.set_yticklabels(["10 KB", "100 KB", "1 MB", "10 MB", "100 MB"])
     ax.set_xlim(left=0)
     ax.xaxis.set_major_formatter(FuncFormatter(lambda v, _: f"{v:,.0f}".replace(",", " ")))
-    ax.text(0.0, 1.06, "W = 1000 fisso · scala logaritmica · linea = formula, "
-            "cerchi = misura sull'heap",
-            transform=ax.transAxes, fontsize=8, color=SMORZATO)
-    fig.subplots_adjust(left=0.13, right=0.82, top=0.90, bottom=0.16)
+    fig.subplots_adjust(left=0.13, right=0.82, top=0.97, bottom=0.17)
     fig.savefig(FIG / uscita)
     plt.close(fig)
     print(f"  {uscita} ✓")
@@ -151,6 +154,6 @@ def grafico_memoria(uscita):
 if __name__ == "__main__":
     FIG.mkdir(parents=True, exist_ok=True)
     print("Figure in relazione/fig/:")
-    grafico_tempo("n", "n (numero di oggetti)", "W = 1000 fisso", "tempo-vs-n.pdf")
-    grafico_tempo("w", "W (capacità dello zaino)", "n = 1000 fisso", "tempo-vs-W.pdf")
+    grafico_tempo("n", "n (numero di oggetti, W fisso a 1000)", "tempo-vs-n.pdf")
+    grafico_tempo("w", "W (capacità dello zaino, n fisso a 1000)", "tempo-vs-W.pdf")
     grafico_memoria("memoria.pdf")
