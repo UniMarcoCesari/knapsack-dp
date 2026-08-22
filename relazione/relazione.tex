@@ -7,6 +7,16 @@
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=asdblu, urlcolor=asdblu, citecolor=asdblu}
 
+% Riserva spazio in fondo alla pagina: se non ne resta abbastanza si passa
+% alla pagina nuova. Evita che un box di pseudocodice si spezzi a met\`a.
+% (equivalente minimale di \Needspace: il pacchetto needspace non c'\`e
+%  in questa installazione TeX Live)
+\makeatletter
+\newcommand{\servespazio}[1]{%
+  \begingroup\setlength{\dimen@}{#1}%
+  \vskip\z@\@plus\dimen@ \penalty-100 \vskip\z@\@plus-\dimen@ \endgroup}
+\makeatother
+
 \begin{document}
 
 % ============================================================
@@ -26,11 +36,7 @@ e confronto con un solver ILP\par}
 \vspace{8pt}\rule{\linewidth}{1pt}
 \vspace{2.6cm}
 
-{\large
-\begin{tabular}{r l}
-Componenti del gruppo: & Marco Cesari\\[2pt]
-                       & $\langle$secondo componente$\rangle$\\
-\end{tabular}\par}
+{\large Marco Cesari\par}
 \vfill
 {\large Corso di Laurea Magistrale in Ingegneria Informatica \textbullet\ UniBS\par}
 {\large \today\par}
@@ -41,13 +47,24 @@ Componenti del gruppo: & Marco Cesari\\[2pt]
 \tableofcontents
 \bigskip\hrule\bigskip
 
+% ---- Paragrafi del corpo: niente rientro, stacco verticale ----
+%  (impostato qui, dopo frontespizio e indice, per non alterarne
+%   la spaziatura)
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{0.55\baselineskip plus 2pt minus 1pt}
+%  lo stacco fra paragrafi si somma a quello sotto i titoli: lo si
+%  compensa, cos\`i ogni titolo resta attaccato al testo che introduce
+\titlespacing*{\section}{0pt}{1.4em}{0pt}
+\titlespacing*{\subsection}{0pt}{1.2em}{0pt}
+\titlespacing*{\subsubsection}{0pt}{1.0em}{0pt}
+
 % ============================================================
 \section{Introduzione e definizione del problema}
 \markboth{Zaino 0/1 --- Relazione}{}
 
 Questo elaborato affronta il problema dello Zaino 0/1 (\emph{0/1 Knapsack}), un
 classico problema di ottimizzazione combinatoria, risolvendolo con il paradigma
-della programmazione dinamica (PD). Lo Zaino 0/1 \`e citato nella traccia
+della programmazione dinamica. Lo Zaino 0/1 \`e citato nella traccia
 dell'elaborato come estensione del problema Subset Sum ed \`e un esempio canonico
 di applicazione della PD.
 
@@ -67,8 +84,8 @@ $x_i \in \{0,1\}$ (dove $x_i = 1$ significa ``oggetto $i$ scelto'' e $x_i = 0$
 ``oggetto $i$ scartato''), il problema si formula come:
 \[
 \begin{aligned}
-\text{massimizzare}\quad & \sum_{i=1}^{n} v_i\, x_i \\[2pt]
-\text{soggetto a}\quad   & \sum_{i=1}^{n} w_i\, x_i \le W, \\[2pt]
+\max\quad         & \sum_{i=1}^{n} v_i\, x_i \\[2pt]
+\text{s.t.}\quad  & \sum_{i=1}^{n} w_i\, x_i \le W, \\[2pt]
                          & x_i \in \{0,1\}, \quad i = 1,\dots,n.
 \end{aligned}
 \]
@@ -93,27 +110,185 @@ agli obiettivi dell'elaborato:
 \end{itemize}
 
 \medskip\noindent
-\emph{N.B.}~Il cuore dell'elaborato \`e l'algoritmo di programmazione dinamica,
-progettato e analizzato in prima persona; il solver ILP non \`e parte della
-soluzione, ma soltanto oracolo di correttezza e baseline di confronto
-prestazionale.
+\emph{N.B.}~Il solver commerciale \`e stato utilizzato unicamente come benchmark
+di confronto e come oracolo di correttezza: il cuore dell'elaborato \`e
+l'algoritmo di programmazione dinamica.
 
 % ============================================================
 \section{Applicabilit\`a della programmazione dinamica}
-\begin{nota}
-\emph{Da compilare.} I due segni distintivi: \textbf{sottostruttura ottima} e
-\textbf{sovrapposizione dei sottoproblemi}; definizione ricorsiva di $K(i,c)$.
-\end{nota}
+
+La progettazione di un algoritmo che adotta il paradigma della programmazione
+dinamica si articola in quattro fasi, di cui l'ultima \`e opzionale:
+\begin{enumerate}
+  \item caratterizzazione della struttura di una soluzione ottima;
+  \item definizione ricorsiva del valore di una soluzione ottima;
+  \item calcolo del valore di una soluzione ottima con una strategia bottom-up;
+  \item costruzione di una soluzione ottima a partire dalle informazioni
+        calcolate nella fase precedente.
+\end{enumerate}
+Questa sezione svolge le prime due fasi per lo Zaino 0/1 e verifica, nel farlo,
+i due segni distintivi che costituiscono il criterio di applicabilit\`a del
+paradigma: l'esistenza di sottostrutture ottime all'interno di una soluzione
+ottima e la sovrapposizione dei sottoproblemi. Le fasi 3 e 4 danno luogo ai due
+algoritmi presentati nella sezione successiva.
+
+\subsection{I sottoproblemi}
+Applicare il paradigma richiede anzitutto di individuare una famiglia di
+sottoproblemi dell'istanza data. Nello Zaino 0/1 un sottoproblema \`e ancora un
+problema dello Zaino 0/1, ottenuto riducendo due grandezze: gli oggetti fra cui
+\`e ammesso scegliere e la capacit\`a dello zaino.
+Fissato una volta per tutte un ordine sugli oggetti, si considerano i soli
+prefissi $\{1,\dots,i\}$: poich\'e su ciascun oggetto si decide una volta sola,
+esaminarli in un ordine prestabilito non esclude alcuna soluzione.
+
+Convenzione notazionale: per $0 \le i \le n$ e $0 \le c \le W$, si indica con
+$K(i,c)$ il valore di una soluzione ottima del sottoproblema costituito dai
+primi $i$ oggetti con capacit\`a $c$.
+
+Il problema di partenza \`e il sottoproblema $(n,W)$ e il valore cercato \`e
+dunque $K(n,W)$; i sottoproblemi distinti sono $(n+1)(W+1)$, dato su cui si
+torner\`a nella Sezione~\ref{sub:sovrapposizione}.
+
+\subsection{Sottostruttura ottima}
+Sia $S \subseteq \{1,\dots,i\}$ una soluzione ottima del sottoproblema $(i,c)$,
+con $i \ge 1$. Sull'oggetto $i$-esimo l'alternativa \`e binaria e i due casi si
+trattano separatamente.
+
+\emph{Caso $i \notin S$.} Allora $S \subseteq \{1,\dots,i-1\}$ ed \`e ammissibile
+per il sottoproblema $(i-1,c)$. \`E anche ottima per esso: se esistesse
+$S' \subseteq \{1,\dots,i-1\}$ ammissibile per $(i-1,c)$ e di valore maggiore,
+$S'$ sarebbe ammissibile anche per $(i,c)$ --- stessa capacit\`a, insieme di
+oggetti pi\`u ampio --- contro l'ottimalit\`a di $S$. Quindi
+$K(i,c) = K(i-1,c)$.
+
+\emph{Caso $i \in S$}, possibile solo se $w_i \le c$. Allora
+$S \setminus \{i\} \subseteq \{1,\dots,i-1\}$ ha peso complessivo non superiore
+a $c - w_i$ ed \`e quindi ammissibile per il sottoproblema $(i-1,\,c-w_i)$. \`E
+anche ottima per esso: se esistesse $S'$ ammissibile per $(i-1,\,c-w_i)$ e di
+valore maggiore di quello di $S \setminus \{i\}$, allora $S' \cup \{i\}$ avrebbe
+peso non superiore a $c$, sarebbe ammissibile per $(i,c)$ e avrebbe valore
+maggiore di quello di $S$, contro l'ottimalit\`a di $S$. Quindi
+$K(i,c) = v_i + K(i-1,\,c-w_i)$.
+
+L'argomento usato in entrambi i casi \`e del tipo taglia-e-incolla: si suppone
+che una porzione di una soluzione ottima non sia ottima per il proprio
+sottoproblema, la si sostituisce con una migliore e si ottiene, per il problema
+di partenza, una soluzione migliore di quella supposta ottima, il che \`e
+assurdo. Una soluzione ottima dello Zaino 0/1 contiene dunque al proprio interno
+soluzioni ottime di sottoproblemi: \`e il primo segno distintivo del paradigma.
+
+\subsection{Definizione ricorsiva del valore di una soluzione ottima}
+I due casi appena discussi esauriscono le alternative. Quando $w_i > c$
+l'oggetto $i$ non \`e collocabile nella capacit\`a disponibile e resta praticabile
+il solo primo caso; quando $w_i \le c$ sono praticabili entrambi e la scelta
+ottima \`e quella che produce il valore maggiore. Con il caso base
+$K(0,c) = 0$ per ogni $c$ --- senza oggetti a disposizione il valore \`e nullo
+--- si ottiene la ricorrenza
+\[
+  K(i,c) =
+  \begin{cases}
+    0 & \text{se } i = 0, \\[2pt]
+    K(i-1,c) & \text{se } i \ge 1 \text{ e } w_i > c, \\[2pt]
+    \max\bigl\{\, K(i-1,c),\; v_i + K(i-1,\,c-w_i) \,\bigr\}
+      & \text{se } i \ge 1 \text{ e } w_i \le c .
+  \end{cases}
+\]
+Il caso $c = 0$ non richiede una riga a s\'e: con capacit\`a nulla nessun oggetto
+\`e collocabile, essendo $w_i > 0$ per ipotesi, e la seconda riga riconduce
+$K(i,0)$ a $K(0,0) = 0$.
+
+La ricorrenza definisce il valore di una soluzione ottima, non la soluzione:
+quali oggetti compongano l'ottimo non compare fra i suoi termini. Ci\`o \`e
+coerente con l'articolazione del paradigma, che alla fase 2 calcola un valore e
+demanda alla fase 4 la costruzione di una soluzione a partire dalle informazioni
+tabulate. La distinzione non \`e formale: le soluzioni ottime possono essere
+pi\`u d'una --- sottoinsiemi diversi di oggetti possono raggiungere lo stesso
+valore massimo --- mentre il valore ottimo \`e unico, ed \`e quello che la
+ricorrenza determina.
+
+\subsection{Sovrapposizione dei sottoproblemi}\label{sub:sovrapposizione}
+Un algoritmo ricorsivo che traducesse alla lettera la ricorrenza risolverebbe
+pi\`u volte lo stesso sottoproblema. Ogni chiamata su $(i,c)$ ne genera al pi\`u
+due sul livello $i-1$, sicch\'e l'albero di ricorsione ha profondit\`a $n$ e fino
+a $2^n$ foglie, mentre i sottoproblemi distinti sono al pi\`u $(n+1)(W+1)$:
+non appena $2^n$ supera tale quantit\`a, qualche sottoproblema viene
+necessariamente affrontato pi\`u di una volta.
+
+La coincidenza, del resto, non \`e un caso limite. Due chiamate ricorsive
+raggiungono lo stesso sottoproblema ogni volta che due sottoinsiemi distinti
+degli oggetti gi\`a decisi hanno lo stesso peso complessivo: gi\`a al livello
+$i-2$, se $w_i = w_{i-1}$, il sottoproblema $(i-2,\,c-w_i)$ \`e raggiunto sia
+prendendo l'oggetto $i$ e scartando l'$(i-1)$-esimo, sia scartando il primo e
+prendendo il secondo. Con pesi interi limitati da $W$, tali collisioni sono la
+norma e non l'eccezione, ed \`e questo il secondo segno distintivo.
+
+La programmazione dinamica risponde a tale ridondanza risolvendo ciascun
+sottoproblema una volta sola e memorizzandone il valore in una tabella: il costo
+cessa di dipendere dal numero di cammini dell'albero di ricorsione e diventa
+proporzionale al numero di sottoproblemi distinti, come si vedr\`a nella
+Sezione~\ref{sec:analisi}.
+
+Entrambi i criteri di applicabilit\`a sono dunque soddisfatti.
 
 % ============================================================
-\section{Gli algoritmi}
-\begin{nota}
-\emph{Da compilare.} \proc{Knapsack-Value} (valore ottimo, bottom-up) e
-\proc{Knapsack-Solution} (ricostruzione della soluzione dalla tabella).
-\end{nota}
+\section{Gli algoritmi}\label{sec:algoritmi}
+
+Le fasi 3 e 4 del paradigma danno luogo ai due algoritmi richiesti dal
+Compito~1: il primo calcola il valore di una soluzione ottima riempiendo una
+tabella con strategia bottom-up, il secondo ricostruisce una soluzione ottima a
+partire dalla tabella cos\`i ottenuta.
+
+\subsection{Calcolo del valore di una soluzione ottima}
+La tabella $K$ ha $n+1$ righe e $W+1$ colonne, indicizzate a partire da zero:
+$K[i,c]$ ospita il valore $K(i,c)$ definito nella Sezione~2. La riga $0$ \`e il
+caso base, le righe successive traducono la ricorrenza.
+
+\servespazio{12\baselineskip}
+\begin{pseudocodice}{Knapsack-Value$(w,v,n,W)$}
+\riga{1}{0}{\kw{for} $c \gets 0$ \kw{to} $W$}
+\riga{2}{1}{\kw{do} $K[0,c] \gets 0$}
+\riga{3}{0}{\kw{for} $i \gets 1$ \kw{to} $n$}
+\riga{4}{1}{\kw{do} \kw{for} $c \gets 0$ \kw{to} $W$}
+\riga{5}{2}{\kw{do} \kw{if} $w[i] > c$}
+\riga{6}{3}{\kw{then} $K[i,c] \gets K[i-1,c]$}
+\riga{7}{3}{\kw{else} $K[i,c] \gets \max\{\,K[i-1,c],\; v[i] + K[i-1,c-w[i]]\,\}$}
+\riga{8}{0}{\kw{return} $K$}
+\end{pseudocodice}
+
+Il valore ottimo dell'istanza \`e $K[n,W]$. L'ordine di riempimento --- righe
+crescenti, e colonne crescenti all'interno di ciascuna riga --- garantisce che i
+valori della riga $i-1$ letti alle righe 6 e 7 siano gi\`a stati calcolati
+quando servono. La tabella viene riempita per intero, comprese le celle che la
+ricorrenza non raggiungerebbe partendo da $(n,W)$: il costo non dipende dunque
+dai dati dell'istanza, ma soltanto da $n$ e $W$.
+
+\subsection{Costruzione di una soluzione ottima}
+La tabella $K$ contiene gi\`a l'informazione necessaria a risalire alle scelte
+compiute, e non occorre memorizzarle in una seconda tabella. Si procede a
+ritroso da $(n,W)$, una riga alla volta, tenendo aggiornata la capacit\`a
+residua $c$.
+
+\servespazio{11\baselineskip}
+\begin{pseudocodice}{Knapsack-Solution$(K,w,n,W)$}
+\riga{1}{0}{$S \gets \emptyset$}
+\riga{2}{0}{$c \gets W$}
+\riga{3}{0}{\kw{for} $i \gets n$ \kw{downto} $1$}
+\riga{4}{1}{\kw{do} \kw{if} $K[i,c] \neq K[i-1,c]$}
+\riga{5}{2}{\kw{then} $S \gets S \cup \{i\}$}
+\riga{6}{3}{$c \gets c - w[i]$}
+\riga{7}{0}{\kw{return} $S$}
+\end{pseudocodice}
+
+Il test della riga 4 decide se l'oggetto $i$ \`e stato preso. Se i due valori
+differiscono, l'oggetto $i$ appartiene a ogni soluzione ottima del sottoproblema
+$(i,c)$: in caso contrario esisterebbe una soluzione ottima contenuta in
+$\{1,\dots,i-1\}$, ammissibile per $(i-1,c)$, di valore $K[i,c] > K[i-1,c]$.
+Se invece i due valori coincidono, esiste una soluzione ottima di $(i,c)$ che
+non contiene l'oggetto $i$, ed \`e quella che l'algoritmo segue. Poich\'e le
+soluzioni ottime possono essere pi\`u d'una, l'algoritmo ne restituisce una.
 
 % ============================================================
-\section{Analisi asintotica}
+\section{Analisi asintotica}\label{sec:analisi}
 \begin{nota}
 \emph{Da compilare.} Tempo $\To(nW)$, spazio $\To(nW)$; natura
 \textbf{pseudo-polinomiale} (lineare nel valore di $W$, esponenziale nella sua

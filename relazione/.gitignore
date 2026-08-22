@@ -8,3 +8,6 @@
 *.synctex.gz
 *.pdf
 _build.log
+
+# le figure NON sono artefatti di LaTeX: servono a compilare il documento
+!fig/*.pdf
