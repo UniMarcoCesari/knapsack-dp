@@ -10,3 +10,9 @@
 *.fdb_latexmk
 *.synctex.gz
 *.pdf
+
+# export di Claude Design (sorgente del canvas, immagini, runtime): resta locale
+canvas/
+
+# la presentazione consegnata SI' tiene: e' il PDF che va su Moodle
+!slides.pdf
