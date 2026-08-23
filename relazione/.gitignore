@@ -11,3 +11,7 @@ _build.log
 
 # le figure NON sono artefatti di LaTeX: servono a compilare il documento
 !fig/*.pdf
+
+# la relazione compilata SI' tiene: il repo e' la sede a cui rimanda la
+# presentazione, e chi apre il link deve poterla leggere senza LaTeX
+!relazione.pdf

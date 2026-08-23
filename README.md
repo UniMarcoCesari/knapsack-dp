@@ -1,9 +1,29 @@
 # knapsack-dp
 
+<p align="center">
+  <img src="docs/zaino.png" width="230" alt="Zaino 0/1">
+</p>
+
 Zaino 0/1 (*0/1 Knapsack*) risolto con **programmazione dinamica** in Java:
 
 > dati n oggetti con peso `w[i]` e valore `v[i]` e una capacità `W`,
 > scegliere il sottoinsieme di valore massimo con peso totale ≤ W.
+
+Elaborato del corso di **Algoritmi e Strutture Dati**, a.a. 2025-26, sul
+paradigma della programmazione dinamica.
+
+**La relazione è [`relazione/relazione.pdf`](relazione/relazione.pdf)**: è il
+documento da leggere per primo — problema, applicabilità del paradigma,
+pseudocodice dei due algoritmi, analisi asintotica e sperimentazione. Questo
+repository ne è il codice.
+
+## Dove sta cosa
+
+| Compito della traccia | Dove |
+|---|---|
+| **1** — descrivere il problema, dimostrare l'applicabilità del paradigma, pseudocodice dell'algoritmo per il valore ottimo e di quello che ricostruisce la soluzione, analisi asintotica | relazione, §§1–4 |
+| **2** — codificare i due algoritmi, con la variante che ne migliora le prestazioni spaziali | `src/knapsack/`, relazione §5 |
+| **3** — sperimentazione su istanze crescenti: tempo, memoria, crescita empirica contro analisi asintotica | `campagna.py`, relazione §6 |
 
 Il progetto contiene i due algoritmi di PD (calcolo del valore ottimo e
 ricostruzione della soluzione), la variante a spazio ridotto, la verifica di
@@ -87,7 +107,9 @@ wn vn
 ```
 
 Risultati in `data/campagna/`: un CSV per serie, `tutti.csv` unito (si apre
-in Excel) e `report.html`. Metodologia: heap fissa, warm-up per il JIT,
+in Excel) e `report.html`. Non sono versionati — si rigenerano in una decina
+di secondi con `./campagna.py`; i CSV della campagna citata nella relazione
+fanno parte del materiale consegnato. Metodologia: heap fissa, warm-up per il JIT,
 `System.gc()` prima di ogni run misurata, mediana e minimo di più ripetizioni,
 seed fisso per punto. Di Gurobi si misura solo il *solve time* a thread singolo.
 
