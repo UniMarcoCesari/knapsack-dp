@@ -57,8 +57,15 @@ public final class Bench {
 
     private static void point(PrintWriter csv, String sweep, Instance ist, int reps, long seedTag) {
         // valore ottimo del punto: finisce nel CSV, cosi' il confronto con il
-        // solver (GurobiBench) resta documentato istanza per istanza
+        // solver (GurobiBench) resta documentato istanza per istanza.
+        // Prima pero' i due algoritmi di programmazione dinamica si controllano
+        // a vicenda: se divergessero, il confronto col solver non direbbe quale
+        // dei due ha sbagliato
         long ottimo = KnapsackRolling.value(ist);
+        long ottimoTabella = KnapsackValue.optimum(KnapsackValue.table(ist), ist);
+        if (ottimo != ottimoTabella)
+            throw new IllegalStateException("valori diversi su n=" + ist.n + " W=" + ist.W
+                    + ": tabella=" + ottimoTabella + " rolling=" + ottimo);
         double[] base = measure(reps, () -> {
             long[][] K = KnapsackValue.table(ist);
             sink += K[ist.n][ist.W];

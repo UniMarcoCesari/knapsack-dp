@@ -62,12 +62,13 @@
   \end{aligned}
   \]
   \vfill
-  {\small Problema NP-hard, citato nella traccia come estensione di Subset Sums.}
+  {\small La versione decisionale \`e NP-completa; il problema \`e citato nella
+  traccia come estensione di Subset Sums.}
 \end{frame}
 
 % ---------------------------------------------------------
 \begin{frame}{Perch\'e la programmazione dinamica si applica}
-  $K(i,c)$ = valore ottimo usando i primi $i$ oggetti con capacit\`a $c$.
+  $K[i,c]$ = valore ottimo usando i primi $i$ oggetti con capacit\`a $c$.
   \vfill
   \begin{itemize}
     \item \textbf{Sottostruttura ottima}: una soluzione ottima di $(i,c)$ contiene
@@ -78,10 +79,10 @@
   \end{itemize}
   \vfill
   \[
-    K(i,c) = \begin{cases}
+    K[i,c] = \begin{cases}
       0 & i = 0 \\
-      K(i-1,c) & w_i > c \\
-      \max\{K(i-1,c),\; v_i + K(i-1,\,c-w_i)\} & w_i \le c
+      K[i-1,c] & w_i > c \\
+      \max\{K[i-1,c],\; v_i + K[i-1,\,c-w_i]\} & w_i \le c
     \end{cases}
   \]
 \end{frame}
@@ -149,7 +150,7 @@
   \begin{center}
     \includegraphics[width=0.82\linewidth]{../relazione/fig/tempo-vs-n.pdf}
   \end{center}
-  {\small Lineare in $n$ a capacit\`a fissa ($R^2 = 0{,}9996$). Gurobi, usato come
+  {\small Lineare in $n$ a capacit\`a fissa ($R^2 = 0{,}9999$). Gurobi, usato come
   riscontro esterno, oscilla senza un andamento riconoscibile.}
 \end{frame}
 
@@ -168,7 +169,7 @@
   \begin{center}
     \includegraphics[width=0.78\linewidth]{../relazione/fig/memoria.pdf}
   \end{center}
-  {\small Misura sull'heap entro il 5\% da $(n+1)(W+1)\cdot 8$ byte. Il rolling
+  {\small La misura sull'heap segue la formula $(n+1)(W+1)\cdot 8$ byte. Il rolling
   array sta quattro ordini di grandezza pi\`u in basso.}
 \end{frame}
 
@@ -181,9 +182,9 @@
     \toprule
     $W$ & \multicolumn{2}{c}{tabella $\To(nW)$} & \multicolumn{2}{c}{rolling $\To(W)$} \\
     \midrule
-    $100\,000$    & 1,5 GB  & 0,76 s           & 781 KB & 0,09 s \\
-    $300\,000$    & 4,5 GB  & memoria esaurita & 2,3 MB & 0,27 s \\
-    $1\,000\,000$ & 14,9 GB & memoria esaurita & 7,6 MB & 0,92 s \\
+    $100\,000$    & 1,5 GB  & 0,81 s           & 781 KB & 0,09 s \\
+    $300\,000$    & 4,5 GB  & memoria esaurita & 2,3 MB & 0,28 s \\
+    $1\,000\,000$ & 14,9 GB & memoria esaurita & 7,6 MB & 0,93 s \\
     \bottomrule
   \end{tabular}
   \end{center}
@@ -198,7 +199,7 @@
     \item Entrambi i criteri di applicabilit\`a sono verificati, e la ricorrenza
           si traduce in due algoritmi: valore e ricostruzione.
     \item L'analisi prevede il comportamento osservato con precisione: tempo
-          lineare in ciascun fattore, memoria entro il 5\% dalla formula.
+          lineare in ciascun fattore, memoria in accordo con la formula.
     \item Il limite si presenta prima sulla memoria che sul tempo: da qui
           l'utilit\`a della variante a spazio ridotto.
     \item Correttezza verificata da 305 test e da un solver ILP usato come

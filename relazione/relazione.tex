@@ -331,11 +331,8 @@ $2^b$: non \`e limitato da alcun polinomio nella lunghezza dell'ingresso.
 L'algoritmo non \`e dunque polinomiale in senso stretto, ed \`e detto
 pseudo-polinomiale.
 
-Ci\`o \`e coerente con lo statuto del problema, che \`e NP-hard in senso debole:
-la sua versione decisionale \`e NP-completa, e proprio l'esistenza di un
-algoritmo pseudo-polinomiale lo distingue dai problemi fortemente NP-hard, per i
-quali un tale algoritmo non pu\`o esistere a meno che $P = NP$. Il fatto \`e
-riportato dalla letteratura e non \`e dimostrato in questo elaborato.
+La versione decisionale dello Zaino 0/1 \`e NP-completa: il fatto \`e riportato
+dalla letteratura e non \`e dimostrato in questo elaborato.
 
 \medskip\noindent
 \proc{Knapsack-Solution} esegue $n$ iterazioni di costo costante e occupa
@@ -396,9 +393,9 @@ Lo spazio scende da $\To(nW)$ a $\To(n+W)$: $\To(W)$ di memoria di lavoro oltre
 ai vettori d'ingresso, che per $W \gg n$ si riduce di fatto a $\To(W)$. Il tempo
 resta $\Oh(nW)$, ma non pi\`u $\To(nW)$: il ciclo interno si ferma a $w[i]$,
 quindi il numero di iterazioni dipende dai pesi. Con pesi uniformi in $[1,W]$ ne
-esegue in media met\`a, ed \`e questa la ragione per cui nelle misure la variante
-risulta circa tre volte pi\`u veloce della tabella pur avendo lo stesso ordine di
-grandezza asintotico.
+esegue in media met\`a, ed \`e questa la ragione principale per cui nelle misure
+la variante risulta da due a tre volte pi\`u veloce della tabella pur avendo lo
+stesso ordine di grandezza asintotico.
 
 Il prezzo \`e la perdita della ricostruzione: senza le righe precedenti il
 confronto $K[i,c] \neq K[i-1,c]$ non \`e pi\`u eseguibile, e della soluzione
@@ -467,11 +464,12 @@ tempo dipende dal valore di $W$ e non dalla sua lunghezza.
 
 La linearit\`a non \`e soltanto un'impressione visiva. Interpolando le misure con
 una retta ai minimi quadrati, il coefficiente di determinazione $R^2$ vale
-$0{,}9998$ per l'algoritmo base al crescere di $n$ e $0{,}9967$ al crescere di
-$W$; per la variante a spazio ridotto vale $0{,}9998$ in entrambi i casi. Pi\`u
-probante ancora \`e il costo di una singola cella: per la variante a spazio
-ridotto vale $0{,}43$ nanosecondi crescendo su $n$ e $0{,}45$ crescendo su $W$,
-lo stesso numero in due campagne indipendenti. Per l'algoritmo base i due valori
+$0{,}9999$ per l'algoritmo base al crescere di $n$ e $0{,}9966$ al crescere di
+$W$; per la variante a spazio ridotto vale $0{,}9997$ e $0{,}9998$. Pi\`u
+probante ancora \`e il tempo speso per cella della tabella, cio\`e la pendenza
+della retta divisa per il fattore tenuto fisso: per la variante a spazio ridotto
+vale $0{,}43$ nanosecondi crescendo su $n$ e $0{,}45$ crescendo su $W$, lo stesso
+numero in due campagne indipendenti. Per l'algoritmo base i due valori
 si discostano, $1{,}3$ contro $0{,}9$, verosimilmente per la struttura della
 tabella, che in Java \`e un vettore di riferimenti a righe separate: a parit\`a
 di celle, dieci volte pi\`u righe costano di pi\`u.
@@ -527,9 +525,9 @@ freddo, su una macchina virtuale appena avviata.
   \cmidrule(lr){2-3}\cmidrule(lr){4-5}
   $W$ & memoria & tempo & memoria & tempo \\
   \midrule
-  $100\,000$    & 1,5 GB  & 0,82 s           & 781 KB & 0,09 s \\
-  $300\,000$    & 4,5 GB  & memoria esaurita & 2,3 MB & 0,27 s \\
-  $1\,000\,000$ & 14,9 GB & memoria esaurita & 7,6 MB & 0,92 s \\
+  $100\,000$    & 1,5 GB  & 0,81 s           & 781 KB & 0,09 s \\
+  $300\,000$    & 4,5 GB  & memoria esaurita & 2,3 MB & 0,28 s \\
+  $1\,000\,000$ & 14,9 GB & memoria esaurita & 7,6 MB & 0,93 s \\
   \bottomrule
   \end{tabular}
 \end{table}
@@ -541,9 +539,10 @@ dello spazio estende di almeno un ordine di grandezza, sui casi provati, le
 capacit\`a trattabili.
 
 \subsection{Confronto con il solver}
-Su tutti i venti punti delle due campagne il valore ottimo calcolato dalla
-programmazione dinamica coincide con quello del solver, che lo registra nei file
-CSV accanto ai tempi: il riscontro esterno di correttezza \`e soddisfatto. Sui
+Su tutti i venti punti delle due campagne la tabella completa e la variante a
+spazio ridotto danno lo stesso valore ottimo, e questo coincide con quello del
+solver; il valore \`e registrato nei file CSV accanto ai tempi. Il riscontro
+esterno di correttezza \`e dunque soddisfatto. Sui
 tempi nessuno dei due domina l'altro. La programmazione dinamica ha un tempo
 prevedibile, determinato da $n$ e $W$, mentre quello del solver dipende da
 quanto l'istanza si presta ai tagli e alle riduzioni del branch and bound. Al
@@ -596,13 +595,10 @@ memoria che la variante serve a risparmiare.
 I pesi sono estratti in $[1,W]$: al crescere della capacit\`a crescono con essa,
 e nella seconda campagna la soluzione ottima resta composta da pochi oggetti.
 Le istanze non diventano dunque mai pi\`u difficili, e la piattezza della curva
-del solver va letta anche alla luce di questo. La convenzione seguita in
-letteratura fissa invece l'intervallo dei pesi e pone la capacit\`a a una
-frazione del peso totale. Non sono state generate le famiglie note per essere
-difficili per i metodi di enumerazione implicita, come quelle fortemente
-correlate, in cui il valore \`e il peso pi\`u una costante: il confronto con il
-solver va quindi letto per quello che \`e, un termine di paragone esterno su
-istanze casuali, e non come uno studio sistematico del solver.
+del solver va letta anche alla luce di questo. Non sono state generate istanze
+costruite apposta per mettere in difficolt\`a il solver: il confronto va quindi
+letto per quello che \`e, un termine di paragone esterno su istanze casuali, e
+non come uno studio sistematico del solver.
 
 Le misure provengono infine da una sola macchina e da una sola macchina
 virtuale: gli andamenti sono affidabili, i valori assoluti no.
