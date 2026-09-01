@@ -4,6 +4,7 @@
 % ---- pacchetti specifici della relazione --------------------
 \usepackage{graphicx}      % grafici della sperimentazione
 \usepackage{booktabs}      % tabelle pulite
+\usepackage{float}         % [H]: figure ancorate esattamente dove scritte
 \usepackage{hyperref}
 \hypersetup{colorlinks=true, linkcolor=asdblu, urlcolor=asdblu, citecolor=asdblu}
 
@@ -68,17 +69,15 @@ e confronto con un solver ILP\par}
 
 Questo elaborato affronta il problema dello Zaino 0/1 (\emph{0/1 Knapsack}), un
 classico problema di ottimizzazione combinatoria, risolvendolo con il paradigma
-della programmazione dinamica. Lo Zaino 0/1 \`e citato nella traccia
-dell'elaborato come estensione del problema Subset Sum ed \`e un esempio canonico
-di applicazione della PD.
+della programmazione dinamica.
 
 \subsection{Il problema}
 Sono dati $n$ oggetti; ciascun oggetto $i$ (con $i = 1,\dots,n$) ha un peso
 $w_i > 0$ e un valore $v_i > 0$, entrambi interi. \`E inoltre data la capacit\`a
 $W$ dello zaino, un intero positivo. Si vuole selezionare un sottoinsieme di
 oggetti che massimizzi il valore totale rispettando il vincolo che il peso totale
-non superi $W$. Ogni oggetto pu\`o essere preso una volta sola oppure non preso
-affatto (interamente o per niente): da qui il nome \emph{0/1}, che distingue il
+non superi $W$. Ogni oggetto pu\`o essere incluso una volta sola oppure escluso
+del tutto (interamente o per niente): da qui il nome \emph{0/1}, che distingue il
 problema dalla variante frazionaria in cui \`e ammesso prendere porzioni di un
 oggetto.
 
@@ -153,17 +152,19 @@ dunque $K[n,W]$; i sottoproblemi distinti sono $(n+1)(W+1) = \To(nW)$.
 
 \subsection{Caratterizzazione della struttura di una soluzione ottima}
 Sia $S \subseteq \{1,\dots,i\}$ una soluzione ottima del sottoproblema $(i,c)$,
-con $i \ge 1$. Sull'oggetto $i$-esimo l'alternativa \`e binaria e i due casi si
-trattano separatamente.
+con $i \ge 1$. Sull'oggetto $i$-esimo la domanda \`e una sola --- lo prendo o
+non lo prendo? --- e i due casi si trattano separatamente.
 
-\emph{Caso $i \notin S$.} Allora $S \subseteq \{1,\dots,i-1\}$ ed \`e ammissibile
+\emph{Caso $i \notin S$: l'oggetto $i$ viene escluso.} Allora
+$S \subseteq \{1,\dots,i-1\}$ ed \`e ammissibile
 per il sottoproblema $(i-1,c)$. \`E anche ottima per esso: se esistesse
 $S' \subseteq \{1,\dots,i-1\}$ ammissibile per $(i-1,c)$ e di valore maggiore,
 $S'$ sarebbe ammissibile anche per $(i,c)$ --- stessa capacit\`a, insieme di
 oggetti pi\`u ampio --- contro l'ottimalit\`a di $S$. Quindi
 $K[i,c] = K[i-1,c]$.
 
-\emph{Caso $i \in S$}, possibile solo se $w_i \le c$. Allora
+\emph{Caso $i \in S$: l'oggetto $i$ viene incluso}, possibile solo se
+$w_i \le c$. Allora
 $S \setminus \{i\} \subseteq \{1,\dots,i-1\}$ ha peso complessivo non superiore
 a $c - w_i$ ed \`e quindi ammissibile per il sottoproblema $(i-1,\,c-w_i)$. \`E
 anche ottima per esso: se esistesse $S'$ ammissibile per $(i-1,\,c-w_i)$ e di
@@ -195,7 +196,7 @@ nullo --- si ottiene la ricorrenza
 \]
 Il caso $c = 0$ non richiede una riga a s\'e: con capacit\`a nulla nessun oggetto
 entra, essendo $w_i > 0$ per ipotesi, e la seconda riga riconduce $K[i,0]$ a
-$K[0,0] = 0$. Si osservi inoltre che $K[i,c] \ge K[i-1,c]$ per ogni $i$ e $c$,
+$K[0,0] = 0$. Si osservi inoltre che $K[i,c] \ge K[i-1,c]$ per ogni $i \ge 1$ e $c$,
 perch\'e il massimo della terza riga contiene $K[i-1,c]$: aggiungere un oggetto
 alla scelta non pu\`o peggiorare l'ottimo. La disuguaglianza torner\`a utile
 nella ricostruzione della soluzione.
@@ -205,18 +206,16 @@ oggetti che lo realizza: alla costruzione di una soluzione provvede la fase 4.
 
 \subsection{Risoluzione ripetuta dello stesso sottoproblema}\label{sub:sovrapposizione}
 Un algoritmo ricorsivo che traducesse alla lettera la ricorrenza risolverebbe
-pi\`u volte lo stesso sottoproblema. Quando ogni oggetto \`e collocabile nella
-capacit\`a corrente --- per esempio se $w_i = 1$ per ogni $i$ e $W \ge n$ ---
-ogni chiamata si biforca e l'albero di ricorsione ha esattamente $2^n$ foglie,
-mentre i sottoproblemi distinti sono $(n+1)(W+1)$: su tali istanze, appena $2^n$
-supera tale quantit\`a, qualche sottoproblema viene necessariamente affrontato
-pi\`u di una volta.
+pi\`u volte lo stesso sottoproblema. Nel caso peggiore ogni chiamata si biforca
+e l'albero di ricorsione ha $2^n$ foglie, mentre i sottoproblemi distinti sono
+$(n+1)(W+1)$: appena $2^n$ supera tale quantit\`a, qualche sottoproblema viene
+necessariamente affrontato pi\`u di una volta.
 
 La coincidenza, del resto, non \`e un caso limite. Due chiamate ricorsive
 raggiungono lo stesso sottoproblema ogni volta che due sottoinsiemi distinti
 degli oggetti gi\`a decisi hanno lo stesso peso complessivo: gi\`a al livello
 $i-2$, se $w_i = w_{i-1}$ e la capacit\`a basta a entrambi, il sottoproblema
-$(i-2,\,c-w_i)$ \`e raggiunto sia prendendo l'oggetto $i$ e scartando
+$(i-2,\,c-w_i)$ \`e raggiunto sia includendo l'oggetto $i$ ed escludendo
 l'$(i-1)$-esimo, sia facendo il contrario. Con pesi interi limitati da $W$, tali
 collisioni sono la norma e non l'eccezione: \`e il secondo segno distintivo e
 criterio di applicabilit\`a, noto in letteratura come sovrapposizione dei
@@ -248,9 +247,9 @@ riga $0$ \`e il caso base, le righe successive traducono la ricorrenza.
 \riga{2}{1}{\kw{do} $K[0,c] \gets 0$}
 \riga{3}{0}{\kw{for} $i \gets 1$ \kw{to} $n$}
 \riga{4}{1}{\kw{do} \kw{for} $c \gets 0$ \kw{to} $W$}
-\riga{5}{2}{\kw{do} \kw{if} $w[i] > c$}
-\riga{6}{3}{\kw{then} $K[i,c] \gets K[i-1,c]$}
-\riga{7}{3}{\kw{else} $K[i,c] \gets \max\{\,K[i-1,c],\; v[i] + K[i-1,c-w[i]]\,\}$}
+\riga{5}{2}{\kw{do} \kw{if} $w[i] > c$ \quad\textcolor{asdgrigio}{$\triangleright$ \textit{l'oggetto $i$ ci sta in $c$?}}}
+\riga{6}{3}{\kw{then} $K[i,c] \gets K[i-1,c]$ \quad\textcolor{asdgrigio}{$\triangleright$ \textit{non ci sta: resta escluso}}}
+\riga{7}{3}{\kw{else} $K[i,c] \gets \max\{\,K[i-1,c],\; v[i] + K[i-1,c-w[i]]\,\}$ \quad\textcolor{asdgrigio}{$\triangleright$ \textit{meglio tra i due}}}
 \riga{8}{0}{\kw{return} $K$}
 \end{pseudocodice}
 
@@ -278,7 +277,7 @@ residua $c$.
 \riga{7}{0}{\kw{return} $S$}
 \end{pseudocodice}
 
-Il test della riga 4 decide se l'oggetto $i$ \`e stato preso. Poich\'e
+Il test della riga 4 decide se l'oggetto $i$ \`e stato incluso. Poich\'e
 $K[i,c] \ge K[i-1,c]$, che i due valori differiscano significa
 $K[i,c] > K[i-1,c]$; allora l'oggetto $i$ appartiene a ogni soluzione ottima del
 sottoproblema $(i,c)$, altrimenti ne esisterebbe una contenuta in
@@ -330,9 +329,6 @@ $2^b - 1$, e il tempo di esecuzione, pur essendo lineare in $n$, cresce come
 $2^b$: non \`e limitato da alcun polinomio nella lunghezza dell'ingresso.
 L'algoritmo non \`e dunque polinomiale in senso stretto, ed \`e detto
 pseudo-polinomiale.
-
-La versione decisionale dello Zaino 0/1 \`e NP-completa: il fatto \`e riportato
-dalla letteratura e non \`e dimostrato in questo elaborato.
 
 \medskip\noindent
 \proc{Knapsack-Solution} esegue $n$ iterazioni di costo costante e occupa
@@ -387,7 +383,7 @@ aggiornarla in luogo.
 Il verso decrescente della riga 4 garantisce che $K[c-w[i]]$ contenga ancora il
 valore dell'iterazione precedente, cio\`e $K[i-1,\,c-w_i]$. Percorrendo $c$ in
 senso crescente si leggerebbe un valore gi\`a aggiornato nell'iterazione
-corrente, e l'oggetto $i$ finirebbe per essere preso pi\`u volte.
+corrente, e l'oggetto $i$ finirebbe per essere incluso pi\`u volte.
 
 Lo spazio scende da $\To(nW)$ a $\To(n+W)$: $\To(W)$ di memoria di lavoro oltre
 ai vettori d'ingresso, che per $W \gg n$ si riduce di fatto a $\To(W)$. Il tempo
@@ -403,13 +399,9 @@ resta il solo valore.
 
 \subsection{Scelte tecnologiche e implementative}
 Il linguaggio scelto \`e Java, versione 21: \`e abbastanza veloce da reggere
-istanze grandi ed \`e disponibile un'API ufficiale di Gurobi. Il nucleo
-dell'elaborato usa la sola libreria standard; il modulo che chiama il solver \`e
-separato e viene compilato solo se la libreria \`e presente, cos\`i che tutto il
-resto resti eseguibile senza. Lo sviluppo \`e avvenuto da riga di comando, con
-compilazione diretta tramite \texttt{javac} guidata da uno script; la campagna di
-misure e le figure sono prodotte da script Python che lanciano i programmi Java,
-ne raccolgono le uscite in file CSV e disegnano i grafici.
+istanze grandi ed \`e disponibile un'API ufficiale di Gurobi. Il modulo che
+chiama il solver \`e separato e si compila solo se la libreria \`e presente,
+cos\`i che il resto resti eseguibile senza.
 
 Le celle della tabella sono interi a 64 bit. Il formato d'ingresso non pone
 limiti ai valori, e la loro somma pu\`o superare la capienza di un intero a 32
@@ -457,24 +449,7 @@ dinamica cresce in proporzione a $n$, come previsto da $\To(nW)$ a capacit\`a
 fissa, mentre quello di Gurobi cresce in modo irregolare e non monotono, con
 oscillazioni ampie.
 
-Nella Figura~\ref{fig:tempo-w} \`e la programmazione dinamica a rallentare al
-crescere della capacit\`a, mentre Gurobi resta pressoch\'e costante: \`e la
-manifestazione empirica della natura pseudo-polinomiale dell'algoritmo, il cui
-tempo dipende dal valore di $W$ e non dalla sua lunghezza.
-
-La linearit\`a non \`e soltanto un'impressione visiva. Interpolando le misure con
-una retta ai minimi quadrati, il coefficiente di determinazione $R^2$ vale
-$0{,}9999$ per l'algoritmo base al crescere di $n$ e $0{,}9966$ al crescere di
-$W$; per la variante a spazio ridotto vale $0{,}9997$ e $0{,}9998$. Pi\`u
-probante ancora \`e il tempo speso per cella della tabella, cio\`e la pendenza
-della retta divisa per il fattore tenuto fisso: per la variante a spazio ridotto
-vale $0{,}43$ nanosecondi crescendo su $n$ e $0{,}45$ crescendo su $W$, lo stesso
-numero in due campagne indipendenti. Per l'algoritmo base i due valori
-si discostano, $1{,}3$ contro $0{,}9$, verosimilmente per la struttura della
-tabella, che in Java \`e un vettore di riferimenti a righe separate: a parit\`a
-di celle, dieci volte pi\`u righe costano di pi\`u.
-
-\begin{figure}[tbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{fig/tempo-vs-n.pdf}
   \caption{Tempo di esecuzione al crescere del numero di oggetti, a capacit\`a
@@ -482,13 +457,34 @@ di celle, dieci volte pi\`u righe costano di pi\`u.
   \label{fig:tempo-n}
 \end{figure}
 
-\begin{figure}[tbp]
+Nella Figura~\ref{fig:tempo-w} la programmazione dinamica ci mette sempre pi\`u
+tempo al crescere della capacit\`a, mentre Gurobi resta pressoch\'e costante. La
+ragione \`e strutturale: Gurobi cerca con il branch and bound sul rilassamento
+continuo, dove $W$ entra una sola volta, come coefficiente nel vincolo di peso,
+e crescerlo non comporta pi\`u lavoro di ricerca. La programmazione dinamica
+invece deve costruire una tabella larga $W+1$ colonne: crescere $W$ significa
+fisicamente pi\`u celle da calcolare, un costo meccanico legato alla dimensione
+della tabella --- \`e la manifestazione empirica della natura pseudo-polinomiale
+dell'algoritmo, il cui tempo dipende dal valore di $W$ e non dalla sua
+lunghezza.
+
+\begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{fig/tempo-vs-W.pdf}
   \caption{Tempo di esecuzione al crescere della capacit\`a, a numero di
   oggetti fisso $n = 1000$.}
   \label{fig:tempo-w}
 \end{figure}
+
+La linearit\`a non \`e soltanto un'impressione visiva: interpolando le misure con
+una retta ai minimi quadrati, $R^2$ vale $0{,}9999$ e $0{,}9966$ per l'algoritmo
+base (su $n$ e su $W$) e $0{,}9997$ e $0{,}9998$ per la variante a spazio
+ridotto. Pi\`u probante \`e il tempo per cella --- la pendenza della retta divisa
+per il fattore tenuto fisso: $0{,}43$ e $0{,}45$ ns per la variante a spazio
+ridotto, lo stesso valore in due campagne indipendenti; per l'algoritmo base i
+due valori si discostano, $1{,}3$ contro $0{,}9$, verosimilmente per la
+struttura a righe separate della tabella in Java --- a parit\`a di celle, dieci
+volte pi\`u righe costano di pi\`u.
 
 Quanto alla memoria, nella Figura~\ref{fig:memoria} i valori misurati sull'heap
 seguono la formula $(n+1)(W+1)\cdot 8$ byte, con uno scarto di pochi punti
@@ -497,7 +493,7 @@ virtuale alloca: le letture sono multipli esatti di quel valore, e lo scarto cal
 al crescere della tabella. La previsione dell'analisi asintotica \`e quindi
 confermata anche nella costante, non solo nell'andamento.
 
-\begin{figure}[tbp]
+\begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{fig/memoria.pdf}
   \caption{Occupazione di memoria della tabella, calcolata dalla formula (linea)
@@ -519,6 +515,7 @@ freddo, su una macchina virtuale appena avviata.
   tabella completa dispone di 2~GB di heap, la variante a spazio ridotto di
   1~GB. I prefissi sono binari.}
   \label{tab:limiti}
+  \smallskip
   \begin{tabular}{rrlrl}
   \toprule
   & \multicolumn{2}{c}{tabella $\To(nW)$} & \multicolumn{2}{c}{a spazio ridotto} \\
@@ -538,6 +535,12 @@ risultato richiesto dal Compito~2: a parit\`a di tempo asintotico, la riduzione
 dello spazio estende di almeno un ordine di grandezza, sui casi provati, le
 capacit\`a trattabili.
 
+Il collo di bottiglia \`e dunque la memoria, non il tempo. Lo si vede nella
+stessa riga della tabella: a $W = 300\,000$ l'algoritmo base esaurisce l'heap,
+ma la variante a spazio ridotto --- stessa complessit\`a temporale, stesso
+calcolo --- risolve l'istanza in appena $0{,}28$ s. Il tempo non era mai vicino
+a diventare un problema: \`e la memoria ad arrivare prima al limite.
+
 \subsection{Confronto con il solver}
 Su tutti i venti punti delle due campagne la tabella completa e la variante a
 spazio ridotto danno lo stesso valore ottimo, e questo coincide con quello del
@@ -546,10 +549,10 @@ esterno di correttezza \`e dunque soddisfatto. Sui
 tempi nessuno dei due domina l'altro. La programmazione dinamica ha un tempo
 prevedibile, determinato da $n$ e $W$, mentre quello del solver dipende da
 quanto l'istanza si presta ai tagli e alle riduzioni del branch and bound. Al
-crescere della capacit\`a le parti si invertono: per il solver $W$ entra
-soltanto come coefficiente del vincolo, e su istanze non correlate come queste
-la sua crescita \`e pressoch\'e ininfluente; per la programmazione dinamica \`e
-invece una dimensione della tabella, e il costo cresce comunque.
+crescere della capacit\`a le parti si invertono (Figura~\ref{fig:tempo-w}): su
+istanze non correlate come queste il tempo del solver resta pressoch\'e
+ininfluente, mentre quello della programmazione dinamica cresce comunque, per il
+motivo gi\`a visto.
 
 \subsection{Riproduzione degli esperimenti}
 Il codice si compila con lo script fornito e non richiede altro che una macchina
