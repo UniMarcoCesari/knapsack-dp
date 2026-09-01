@@ -556,7 +556,11 @@ motivo gi\`a visto.
 
 \subsection{Riproduzione degli esperimenti}
 Il codice si compila con lo script fornito e non richiede altro che una macchina
-virtuale Java. I comandi principali sono i seguenti.
+virtuale Java. Gurobi \`e opzionale: \texttt{compile.sh} include il modulo che lo
+interroga solo se trova \texttt{gurobi.jar} (variabile \texttt{GUROBI\_HOME} o
+\texttt{lib/gurobi.jar}), e \texttt{campagna.py} salta automaticamente le curve
+del solver quando non lo trova, riproducendo comunque per intero la parte di
+programmazione dinamica. I comandi principali sono i seguenti.
 
 \begin{codice}
 \begin{Verbatim}[fontsize=\small]
