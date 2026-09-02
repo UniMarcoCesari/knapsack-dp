@@ -11,8 +11,9 @@
 *.synctex.gz
 *.pdf
 
-# export di Claude Design (sorgente del canvas, immagini, runtime): resta locale
+# sorgenti e immagini della copertina: restano in locale, non servono a chi clona
 canvas/
+fig/zaino.png
 
 # la presentazione consegnata SI' tiene: e' il PDF che va su Moodle
 !slides.pdf

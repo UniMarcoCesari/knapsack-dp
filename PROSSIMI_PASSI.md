@@ -47,7 +47,7 @@ come sviluppo naturale; non serve a completare la traccia.
 ### Istanze "killer" per il solver ILP — rimosso il 2026-07-28
 Generazione di istanze *strongly correlated* con `W = Σw_i/2` più i relativi
 sweep. Rimosso perché fuori scopo (raddoppiava sull'unica parte non richiesta) e
-perché i dati smentivano la tesi: Gurobi vinceva in 7 punti su 8. Resta il solo
-generatore correlato (`race.py --correlated`), per la tesi più modesta e onesta
-che il tempo della PD non dipende dalla distribuzione dei valori mentre quello
-del branch and bound sì.
+perché i dati smentivano la tesi: Gurobi vinceva in 7 punti su 8. Il generatore
+correlato è sopravvissuto per un po' come opzione di `race.py`, ma non lo usava
+nulla — né la campagna, né la relazione, né la demo — ed è stato tolto anch'esso
+il 2026-09-02.
