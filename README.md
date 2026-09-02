@@ -21,9 +21,9 @@ repository ne è il codice.
 
 | Compito della traccia | Dove |
 |---|---|
-| **1** — descrivere il problema, dimostrare l'applicabilità del paradigma, pseudocodice dell'algoritmo per il valore ottimo e di quello che ricostruisce la soluzione, analisi asintotica | relazione, §§1–4 |
-| **2** — codificare i due algoritmi, con la variante che ne migliora le prestazioni spaziali | `src/knapsack/`, relazione §5 |
-| **3** — sperimentazione su istanze crescenti: tempo, memoria, crescita empirica contro analisi asintotica | `campagna.py`, relazione §6 |
+| **1** — descrivere il problema, dimostrare l'applicabilità del paradigma, pseudocodice dell'algoritmo per il valore ottimo e di quello che ricostruisce la soluzione, analisi asintotica | relazione, sezioni 1–4 |
+| **2** — codificare i due algoritmi, con la variante che ne migliora le prestazioni spaziali | `src/knapsack/`, relazione sezione 5 |
+| **3** — sperimentazione su istanze crescenti: tempo, memoria, crescita empirica contro analisi asintotica | `campagna.py`, relazione sezione 6 |
 
 Il progetto contiene i due algoritmi di PD (calcolo del valore ottimo e
 ricostruzione della soluzione), la variante a spazio ridotto, la verifica di
