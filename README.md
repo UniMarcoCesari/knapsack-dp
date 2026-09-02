@@ -49,7 +49,7 @@ PD tabella, PD rolling, brute force e Gurobi: una riga ciascuno con valore
 ottimo, tempo e memoria, più il verdetto di concordanza. Con n > 25 il brute
 force si ritira da solo. Con `--plot` apre una pagina con due grafici a barre
 (tempo e memoria). I file hanno nome univoco dai parametri
-(`data/race_n<n>_W<W>_s<seed>.*`): l'istanza viene riusata, il grafico
+(`data/race_<tipo>_n<n>_W<W>_s<seed>.txt` e `data/race_n<n>_W<W>_s<seed>.html`): l'istanza viene riusata, il grafico
 sovrascritto.
 
 Per capire l'algoritmo c'è un'istanza minuscola verificabile a mano

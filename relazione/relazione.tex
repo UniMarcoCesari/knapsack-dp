@@ -205,8 +205,8 @@ La ricorrenza determina il valore ottimo, che \`e unico, non l'insieme di
 oggetti che lo realizza: alla costruzione di una soluzione provvede la fase 4.
 
 \subsection{Risoluzione ripetuta dello stesso sottoproblema}\label{sub:sovrapposizione}
-Un algoritmo ricorsivo che traducesse alla lettera la ricorrenza risolverebbe
-pi\`u volte lo stesso sottoproblema. Nel caso peggiore ogni chiamata si biforca
+Un algoritmo ricorsivo che traducesse alla lettera la ricorrenza pu\`o
+risolvere pi\`u volte lo stesso sottoproblema. Nel caso peggiore ogni chiamata si biforca
 e l'albero di ricorsione ha $2^n$ foglie, mentre i sottoproblemi distinti sono
 $(n+1)(W+1)$: appena $2^n$ supera tale quantit\`a, qualche sottoproblema viene
 necessariamente affrontato pi\`u di una volta.
@@ -489,8 +489,8 @@ volte pi\`u righe costano di pi\`u.
 Quanto alla memoria, nella Figura~\ref{fig:memoria} i valori misurati sull'heap
 seguono la formula $(n+1)(W+1)\cdot 8$ byte, con uno scarto di pochi punti
 percentuali dovuto alla granularit\`a di mezzo megabyte con cui la macchina
-virtuale alloca: le letture sono multipli esatti di quel valore, e lo scarto cala
-al crescere della tabella. La previsione dell'analisi asintotica \`e quindi
+virtuale alloca: le letture sono multipli esatti di quel valore, e lo scarto tende a
+ridursi al crescere della tabella. La previsione dell'analisi asintotica \`e quindi
 confermata anche nella costante, non solo nell'andamento.
 
 \begin{figure}[H]
@@ -530,7 +530,7 @@ freddo, su una macchina virtuale appena avviata.
 \end{table}
 
 Gi\`a a $W = 300\,000$ l'algoritmo base non arriva in fondo, mentre la variante
-risolve la stessa istanza usando due megabyte e un quarto di secondo. \`E il
+risolve la stessa istanza usando 2,3 MB e 0,28 s. \`E il
 risultato richiesto dal Compito~2: a parit\`a di tempo asintotico, la riduzione
 dello spazio estende di almeno un ordine di grandezza, sui casi provati, le
 capacit\`a trattabili.
@@ -590,7 +590,7 @@ campagna fanno parte del materiale consegnato.
 \subsection{Limitazioni riscontrate}\label{sec:limitazioni}
 La misura della memoria sull'heap ha una risoluzione dell'ordine del mezzo
 megabyte, imposta dalla granularit\`a con cui la macchina virtuale alloca:
-sufficiente per la tabella, che occupa decine o centinaia di megabyte,
+sufficiente per la tabella, che occupa decine di megabyte,
 inutilizzabile per la variante a spazio ridotto, i cui pochi kilobyte restano
 sotto la soglia. Di quest'ultima si riporta perci\`o la sola occupazione
 calcolata.

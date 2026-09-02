@@ -120,6 +120,8 @@ public final class Main {
             System.out.printf("Rolling array:  valore ottimo = %d   [%.2f ms, %d byte di tabella]%n",
                     best, ms, ist.rollingBytes());
             System.out.println("(variante Θ(W): il valore c'è, la soluzione non è ricostruibile)");
+            if (dump != null)
+                System.err.println("--dump-table ignorato: la variante Θ(W) non costruisce la tabella");
             return;
         }
 
